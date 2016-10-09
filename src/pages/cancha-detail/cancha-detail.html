@@ -5,17 +5,17 @@
 </ion-header>
 
 <ion-content padding>
-  <h1>{{session.name}}</h1>
+  <h1>{{cancha.name}}</h1>
 
-  <h4 *ngFor="let jugador of jugadores">
-    {{jugador.name}}
+  <h4>
+    {{cancha.name}}
   </h4>
 
   <p>
-    {{jugador.timeStart}} - {{jugador.timeEnd}}
+    {{cancha.timeStart}} - {{cancha.timeEnd}}
   </p>
 
-  <p>{{jugador.location}}</p>
+  <p>{{cancha.location}}</p>
 
-  <p>{{jugador.description}}</p>
+  <p>{{cancha.description}}</p>
 </ion-content>

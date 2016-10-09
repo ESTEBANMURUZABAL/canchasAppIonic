@@ -77,10 +77,10 @@ export class CanchasPage {
 
   }
 
-  goToCanchaDetail(canchaData) {
+  goToCanchaDetail(cancha) {
     // go to the session detail page
     // and pass in the session data
-    this.navCtrl.push(CanchaDetailPage, canchaData);
+    this.navCtrl.push(CanchaDetailPage, cancha);
   }
 
   addFavorite(slidingItem: ItemSliding, sessionData) {

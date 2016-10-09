@@ -66516,7 +66516,7 @@ var CanchaDetailPage = (function () {
     }
     CanchaDetailPage = __decorate$14([
         Component({
-            selector: 'page-cancha-detail', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <ion-title>Cancha descripcion</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <h1>{{session.name}}</h1>\n\n  <h4 *ngFor="let jugador of jugadores">\n    {{jugador.name}}\n  </h4>\n\n  <p>\n    {{jugador.timeStart}} - {{jugador.timeEnd}}\n  </p>\n\n  <p>{{jugador.location}}</p>\n\n  <p>{{jugador.description}}</p>\n</ion-content>\n'
+            selector: 'page-cancha-detail', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <ion-title>Cancha descripcion</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <h1>{{cancha.name}}</h1>\n\n  <h4>\n    {{cancha.name}}\n  </h4>\n\n  <p>\n    {{cancha.timeStart}} - {{cancha.timeEnd}}\n  </p>\n\n  <p>{{cancha.location}}</p>\n\n  <p>{{cancha.description}}</p>\n</ion-content>\n'
         }), 
         __metadata$13('design:paramtypes', [(typeof (_a = typeof NavParams !== 'undefined' && NavParams) === 'function' && _a) || Object])
     ], CanchaDetailPage);
@@ -66574,10 +66574,10 @@ var CanchasPage = (function () {
             }
         });
     };
-    CanchasPage.prototype.goToCanchaDetail = function (canchaData) {
+    CanchasPage.prototype.goToCanchaDetail = function (cancha) {
         // go to the session detail page
         // and pass in the session data
-        this.navCtrl.push(CanchaDetailPage, canchaData);
+        this.navCtrl.push(CanchaDetailPage, cancha);
     };
     CanchasPage.prototype.addFavorite = function (slidingItem, sessionData) {
         if (this.user.hasFavorite(sessionData.name)) {

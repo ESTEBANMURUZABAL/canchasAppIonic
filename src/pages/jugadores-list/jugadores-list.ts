@@ -8,11 +8,11 @@ import { SessionDetailPage } from '../session-detail/session-detail';
 import { SpeakerDetailPage } from '../speaker-detail/speaker-detail';
 
 
-@Component({
+@Component({  
   selector: 'page-jugadores-list',
   templateUrl: 'jugadores-list.html'
 })
-export class SpeakerListPage {
+export class JugadoresListPage {
   actionSheet: ActionSheet;
   speakers = [];
 

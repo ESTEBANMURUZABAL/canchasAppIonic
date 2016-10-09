@@ -9,7 +9,7 @@ import { CanchasData } from '../../providers/canchas-data';
   selector: 'page-canchas-filter',
   templateUrl: 'canchas-filter.html'
 })
-export class ScheduleFilterPage {
+export class JugadoresFilterPage {
   tracks: Array<{name: string, isChecked: boolean}> = [];
 
   constructor(

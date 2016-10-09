@@ -10,11 +10,11 @@ import { AccountPage } from '../pages/account/account';
 import { LoginPage } from '../pages/login/login';
 import { MapPage } from '../pages/map/map';
 import { CanchasPage } from '../pages/canchas/canchas';
-import { ScheduleFilterPage } from '../pages/canchas-filter/canchas-filter';
+import { JugadoresFilterPage } from '../pages/canchas-filter/canchas-filter';
 import { SessionDetailPage } from '../pages/session-detail/session-detail';
 import { SignupPage } from '../pages/signup/signup';
 import { SpeakerDetailPage } from '../pages/speaker-detail/speaker-detail';
-import { SpeakerListPage } from '../pages/speaker-list/speaker-list';
+import { JugadoresListPage } from '../pages/jugadores-list/jugadores-list';
 import { TabsPage } from '../pages/tabs/tabs';
 import { TutorialPage } from '../pages/tutorial/tutorial';
 
@@ -31,11 +31,11 @@ import { UserData } from '../providers/user-data';
     MapPage,
     PopoverPage,
     CanchasPage,
-    ScheduleFilterPage,
+    JugadoresFilterPage,
     SessionDetailPage,
     SignupPage,
     SpeakerDetailPage,
-    SpeakerListPage,
+    JugadoresListPage,
     TabsPage,
     TutorialPage
   ],
@@ -51,11 +51,11 @@ import { UserData } from '../providers/user-data';
     MapPage,
     PopoverPage,
     CanchasPage,
-    ScheduleFilterPage,
+    JugadoresFilterPage,
     SessionDetailPage,
     SignupPage,
     SpeakerDetailPage,
-    SpeakerListPage,
+    JugadoresListPage,
     TabsPage,
     TutorialPage
   ],

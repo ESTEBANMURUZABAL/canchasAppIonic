@@ -9,7 +9,7 @@ import { AlertController, App, ItemSliding, List, ModalController, NavController
 import moment from 'moment';
 
 import { CanchasData } from '../../providers/canchas-data';
-import { ScheduleFilterPage } from '../canchas-filter/canchas-filter';
+import { JugadoresFilterPage } from '../canchas-filter/canchas-filter';
 import { SessionDetailPage } from '../session-detail/session-detail';
 import { UserData } from '../../providers/user-data';
 
@@ -70,7 +70,7 @@ export class CanchasPage {
   }
 
   presentFilter() {
-    let modal = this.modalCtrl.create(ScheduleFilterPage, this.excludeTracks);
+    let modal = this.modalCtrl.create(JugadoresFilterPage, this.excludeTracks);
     modal.present();
 
     modal.onDidDismiss((data: any[]) => {

@@ -164,8 +164,8 @@
     {
       "name": "Resistencia chaco",
       "lat": -27.4606439,
-      "lng": -59.0653856,
-      "center": true
+      "lng": -59.0653856
+
     },
     {
       "name": "Premium",
@@ -175,7 +175,8 @@
     {
       "name": "El quincho",
       "lat": -27.4551208,
-      "lng": -59.0045477
+      "lng": -59.0045477,
+      "center": true
     }
   ]
 

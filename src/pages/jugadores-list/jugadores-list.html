@@ -7,16 +7,16 @@
   </ion-navbar>
 </ion-header>
 
-<ion-content class="outer-content speaker-list">
-  <ion-card *ngFor="let speaker of speakers" class="speaker">
+<ion-content class="outer-content jugadores-list">
+  <ion-card *ngFor="let jugador of jugadores" class="jugadores">
 
     <ion-card-header>
       <ion-item>
         <ion-avatar item-left>
-          <img [src]="speaker.profilePic">
+          <img [src]="jugador.profilePic">
         </ion-avatar>
-        {{speaker.name}}
-        <button ion-button icon-only (click)="openContact(speaker)" clear item-right>
+        {{jugador.name}}
+        <button ion-button icon-only (click)="openContact(jugador)" clear item-right>
           <ion-icon name="help-circle"></ion-icon>
         </button>
       </ion-item>
@@ -24,21 +24,21 @@
 
     <ion-card-content class="outer-content">
       <ion-list>
-        <button ion-item *ngFor="let session of speaker.sessions" (click)="goToSessionDetail(session)">
-          <h3>{{session.name}}</h3>
+        <button ion-item (click)="goToJugadorDetail(jugador)">
+          <h3>{{jugador.name}}</h3>
         </button>
-        <button ion-item (click)="goToSpeakerDetail(speaker)">
-          <h3>About {{speaker.name}}</h3>
+        <button ion-item (click)="goToJugadorDetail(jugador)">
+          <h3>About {{jugador.name}}</h3>
         </button>
       </ion-list>
     </ion-card-content>
 
     <ion-item>
-      <button ion-button icon-left (click)="goToSpeakerTwitter(speaker)" clear item-left>
+      <button ion-button icon-left (click)="goToJugadorTwitter(jugador)" clear item-left>
         <ion-icon name="logo-twitter"></ion-icon>
         Tweet
       </button>
-      <button ion-button icon-left (click)="openSpeakerShare(speaker)" clear item-right>
+      <button ion-button icon-left (click)="openJugadorShare(jugador)" clear item-right>
         <ion-icon name="share"></ion-icon>
         Share
       </button>

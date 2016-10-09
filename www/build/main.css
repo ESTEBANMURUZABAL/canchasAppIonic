@@ -21128,52 +21128,52 @@ page-account img {
   border-radius: 50%;
 }
 
-page-schedule ion-item-sliding[track=ionic] ion-label {
+page-canchas ion-item-sliding[track=ionic] ion-label {
   border-left: 2px solid #387ef5;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=angular] ion-label {
+page-canchas ion-item-sliding[track=angular] ion-label {
   border-left: 2px solid #AC282B;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=communication] ion-label {
+page-canchas ion-item-sliding[track=communication] ion-label {
   border-left: 2px solid #8E8D93;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=tooling] ion-label {
+page-canchas ion-item-sliding[track=tooling] ion-label {
   border-left: 2px solid #FE4C52;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=services] ion-label {
+page-canchas ion-item-sliding[track=services] ion-label {
   border-left: 2px solid #FD8B2D;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=design] ion-label {
+page-canchas ion-item-sliding[track=design] ion-label {
   border-left: 2px solid #FED035;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=workshop] ion-label {
+page-canchas ion-item-sliding[track=workshop] ion-label {
   border-left: 2px solid #69BB7B;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=food] ion-label {
+page-canchas ion-item-sliding[track=food] ion-label {
   border-left: 2px solid #3BC7C4;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=documentation] ion-label {
+page-canchas ion-item-sliding[track=documentation] ion-label {
   border-left: 2px solid #B16BE3;
   padding-left: 10px;
 }
 
-page-schedule ion-item-sliding[track=navigation] ion-label {
+page-canchas ion-item-sliding[track=navigation] ion-label {
   border-left: 2px solid #6600CC;
   padding-left: 10px;
 }
@@ -21272,17 +21272,26 @@ ion-item[track=navigation] .dot {
   margin-right: 10px;
 }
 
-page-speaker-list ion-card.speaker ion-card-header .item {
+.speaker-detail img {
+  max-width: 140px;
+  border-radius: 50%;
+}
+
+.speaker-detail p {
+  color: #60646B;
+}
+
+page-jugadores-list ion-card.jugadores ion-card-header .item {
   padding: 12px;
 }
 
-page-speaker-list ion-card.speaker ion-card-content .list {
+page-jugadores-list ion-card.jugadores ion-card-content .list {
   margin: 0;
 }
 
-page-speaker-list ion-card.speaker ion-card-header,
-page-speaker-list ion-card.speaker ion-card-content,
-page-speaker-list ion-card.speaker ion-card-content .list ion-item-content {
+page-jugadores-list ion-card.jugadores ion-card-header,
+page-jugadores-list ion-card.jugadores ion-card-content,
+page-jugadores-list ion-card.jugadores ion-card-content .list ion-item-content {
   padding: 0;
 }
 
@@ -21309,15 +21318,6 @@ page-map #map {
 
 page-map #map.show-map {
   opacity: 1;
-}
-
-.speaker-detail img {
-  max-width: 140px;
-  border-radius: 50%;
-}
-
-.speaker-detail p {
-  color: #60646B;
 }
 
 page-tutorial .toolbar-background {

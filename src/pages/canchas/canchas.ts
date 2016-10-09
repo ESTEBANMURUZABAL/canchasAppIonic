@@ -10,28 +10,27 @@ import moment from 'moment';
 
 import { CanchasData } from '../../providers/canchas-data';
 import { JugadoresFilterPage } from '../canchas-filter/canchas-filter';
-import { SessionDetailPage } from '../session-detail/session-detail';
+import { CanchaDetailPage } from '../cancha-detail/cancha-detail';
 import { UserData } from '../../providers/user-data';
 
 
 @Component({
-  selector: 'page-schedule',
+  selector: 'page-canchas',
   templateUrl: 'canchas.html'
 })
 export class CanchasPage {
   // the list is a child of the canchas page
-  // @ViewChild('scheduleList') gets a reference to the list
-  // with the variable #scheduleList, `read: List` tells it to return
+  // @ViewChild('canchasList') gets a reference to the list
+  // with the variable #canchasList, `read: List` tells it to return
   // the List and not a reference to the element
-  @ViewChild('scheduleList', {read: List}) scheduleList: List;
+  @ViewChild('canchasList', {read: List}) canchasList: List;
 
   dayIndex = 0;
   queryText = '';
   segment = 'all';
   excludeTracks = [];
   shownSessions: any = [];
-  groups = [];
-  confDate: string;
+  canchas = [];
 
   constructor(
     public alertCtrl: AlertController,
@@ -45,28 +44,24 @@ export class CanchasPage {
   }
 
   ionViewDidEnter() {
-    this.app.setTitle('Schedule');
+    this.app.setTitle('Canchas');
   }
 
   ngAfterViewInit() {
-    this.updateSchedule();
+    this.updateCanchas();
   }
 
-  updateSchedule() {
+  updateCanchas() {
     // Close any open sliding items when the canchas updates
-    this.scheduleList && this.scheduleList.closeSlidingItems();
+    this.canchasList && this.canchasList.closeSlidingItems();
 
-    this.confData.getTimeline(this.dayIndex, this.queryText, this.excludeTracks, this.segment).then(data => {
-      let timestamp = data.date;
 
-      /*
-        To learn how to use third party libs in an
-        Ionic app check out our docs here: http://ionicframework.com/docs/v2/resources/third-party-libs/
-      */
-      this.confDate = moment(timestamp).format('MM/DD/YYYY');
-      this.shownSessions = data.shownSessions;
-      this.groups = data.groups;
+    this.confData.getCanchas().then(canchas => {
+      this.canchas = canchas;
+
     });
+
+
   }
 
   presentFilter() {
@@ -76,16 +71,16 @@ export class CanchasPage {
     modal.onDidDismiss((data: any[]) => {
       if (data) {
         this.excludeTracks = data;
-        this.updateSchedule();
+        this.updateCanchas();
       }
     });
 
   }
 
-  goToSessionDetail(sessionData) {
+  goToCanchaDetail(canchaData) {
     // go to the session detail page
     // and pass in the session data
-    this.navCtrl.push(SessionDetailPage, sessionData);
+    this.navCtrl.push(CanchaDetailPage, canchaData);
   }
 
   addFavorite(slidingItem: ItemSliding, sessionData) {
@@ -133,7 +128,7 @@ export class CanchasPage {
           handler: () => {
             // they want to remove this session from their favorites
             this.user.removeFavorite(sessionData.name);
-            this.updateSchedule();
+            this.updateCanchas();
 
             // close the sliding item and hide the option buttons
             slidingItem.close();

@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-navbar>
+    <ion-title>Cancha descripcion</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <h1>{{session.name}}</h1>
+
+  <h4 *ngFor="let jugador of jugadores">
+    {{jugador.name}}
+  </h4>
+
+  <p>
+    {{jugador.timeStart}} - {{jugador.timeEnd}}
+  </p>
+
+  <p>{{jugador.location}}</p>
+
+  <p>{{jugador.description}}</p>
+</ion-content>

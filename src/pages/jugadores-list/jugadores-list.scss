@@ -1,17 +1,17 @@
 
-page-speaker-list {
+page-jugadores-list {
 
-  ion-card.speaker ion-card-header .item {
+  ion-card.jugadores ion-card-header .item {
     padding: 12px;
   }
 
-  ion-card.speaker ion-card-content .list {
+  ion-card.jugadores ion-card-content .list {
     margin: 0;
   }
 
-  ion-card.speaker ion-card-header,
-  ion-card.speaker ion-card-content,
-  ion-card.speaker ion-card-content .list ion-item-content, {
+  ion-card.jugadores ion-card-header,
+  ion-card.jugadores ion-card-content,
+  ion-card.jugadores ion-card-content .list ion-item-content, {
     padding: 0;
   }
 

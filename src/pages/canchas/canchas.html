@@ -4,7 +4,7 @@
       <ion-icon name="menu"></ion-icon>
     </button>
 
-    <ion-segment [(ngModel)]="segment" (ionChange)="updateSchedule()">
+    <ion-segment [(ngModel)]="segment" (ionChange)="updateCanchas()">
       <ion-segment-button value="all">
         All
       </ion-segment-button>
@@ -23,42 +23,42 @@
   <ion-toolbar no-border-top>
     <ion-searchbar color="primary"
                    [(ngModel)]="queryText"
-                   (ionInput)="updateSchedule()"
+                   (ionInput)="updateCanchas()"
                    placeholder="Search">
     </ion-searchbar>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
-  <ion-list #scheduleList [hidden]="shownSessions === 0">
+  <ion-list #canchasList> <!--[hidden]="shownSessions === 0"-->
 
-    <ion-item-group *ngFor="let group of groups" [hidden]="group.hide">
+    <ion-item-group *ngFor="let cancha of canchas" ><!--[hidden]="canchas.hide"-->
 
       <ion-item-divider sticky>
         <div item-left>
-          {{group.time}}
+          {{cancha.name}}
         </div>
         <div item-right>
-          {{confDate}}
+          {{cancha.name}}
         </div>
       </ion-item-divider>
 
-      <ion-item-sliding *ngFor="let session of group.sessions" #slidingItem [attr.track]="session.tracks[0] | lowercase" [hidden]="session.hide">
+      <ion-item-sliding><!-- #slidingItem [attr.track]="session.tracks[0] | lowercase" [hidden]="session.hide"-->
 
-        <button ion-item (click)="goToSessionDetail(session)">
-          <h3>{{session.name}}</h3>
+        <button ion-item (click)="goToCanchaDetail(cancha)">
+          <h3>{{cancha.name}}</h3>
           <p>
-            {{session.timeStart}} &mdash;
-            {{session.timeEnd}}:
-            {{session.location}}
+            {{cancha.location}} &mdash;
+            {{cancha.description}}:
+            {{cancha.phoneNumber}}
           </p>
         </button>
 
         <ion-item-options>
-          <button ion-button color="favorite" (click)="addFavorite(slidingItem, session)" *ngIf="segment === 'all'">
+          <button ion-button color="favorite" (click)="addFavorite(slidingItem, cancha)" *ngIf="segment === 'all'">
             Favorite
           </button>
-          <button ion-button color="danger" (click)="removeFavorite(slidingItem, session, 'Remove Favorite')" *ngIf="segment === 'favorites'">
+          <button ion-button color="danger" (click)="removeFavorite(slidingItem, cancha, 'Remove Favorite')" *ngIf="segment === 'favorites'">
             Remove
           </button>
         </ion-item-options>
@@ -69,9 +69,9 @@
 
   </ion-list>
 
-  <ion-list-header [hidden]="shownSessions > 0">
+<!--  <ion-list-header [hidden]="shownSessions > 0">
       No Sessions Found
-  </ion-list-header>
+  </ion-list-header>-->
 
 
 </ion-content>

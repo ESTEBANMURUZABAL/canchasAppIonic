@@ -25,81 +25,17 @@ export class CanchasData {
       this.http.get('assets/data/data.json').subscribe(res => {
         // we've got back the raw data, now generate the core canchas data
         // and save the data for later reference
-        this.data = this.processData(res.json());
+        this.data = res.json();
         resolve(this.data);
       });
     });
   }
 
-  processData(data) {
-    // just some good 'ol JS fun with objects and arrays
-    // build up the data by linking speakers to sessions
 
-    data.tracks = [];
 
-    // loop through each day in the canchas
-    data.schedule.forEach(day => {
-      // loop through each timeline group in the day
-      day.groups.forEach(group => {
-        // loop through each session in the timeline group
-        group.sessions.forEach(session => {
-          this.processSession(data, session);
-        });
-      });
-    });
-
-    return data;
-  }
-
-  processSession(data, session) {
-    // loop through each speaker and load the speaker data
-    // using the speaker name as the key
-    session.speakers = [];
-    if (session.speakerNames) {
-      session.speakerNames.forEach(speakerName => {
-        let speaker = data.speakers.find(s => s.name === speakerName);
-        if (speaker) {
-          session.speakers.push(speaker);
-          speaker.sessions = speaker.sessions || [];
-          speaker.sessions.push(session);
-        }
-      });
-    }
-
-    if (session.tracks) {
-      session.tracks.forEach(track => {
-        if (data.tracks.indexOf(track) < 0) {
-          data.tracks.push(track);
-        }
-      });
-    }
-  }
-
-  getTimeline(dayIndex, queryText = '', excludeTracks = [], segment = 'all') {
+  getCanchas() {
     return this.load().then(data => {
-      let day = data.schedule[dayIndex];
-      day.shownSessions = 0;
-
-      queryText = queryText.toLowerCase().replace(/,|\.|-/g, ' ');
-      let queryWords = queryText.split(' ').filter(w => !!w.trim().length);
-
-      day.groups.forEach(group => {
-        group.hide = true;
-
-        group.sessions.forEach(session => {
-          // check if this session should show or not
-          this.filterSession(session, queryWords, excludeTracks, segment);
-
-          if (!session.hide) {
-            // if this session is not hidden then this group should show
-            group.hide = false;
-            day.shownSessions++;
-          }
-        });
-
-      });
-
-      return day;
+      return data.canchas;
     });
   }
 
@@ -142,9 +78,9 @@ export class CanchasData {
     session.hide = !(matchesQueryText && matchesTracks && matchesSegment);
   }
 
-  getSpeakers() {
+  getJugadores() {
     return this.load().then(data => {
-      return data.speakers.sort((a, b) => {
+      return data.jugadores.sort((a, b) => {
         let aName = a.name.split(' ').pop();
         let bName = b.name.split(' ').pop();
         return aName.localeCompare(bName);

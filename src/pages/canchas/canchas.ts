@@ -55,13 +55,11 @@ export class CanchasPage {
     // Close any open sliding items when the canchas updates
     this.canchasList && this.canchasList.closeSlidingItems();
 
-
-    this.confData.getCanchas().then(canchas => {
-      this.canchas = canchas;
-
+    this.confData.getCanchas(this.dayIndex, this.queryText, this.excludeTracks, this.segment).then(data => {
+   
+      this.shownCanchas = data.shownCanchas;
+      this.chanchas = data.canchas;
     });
-
-
   }
 
   presentFilter() {

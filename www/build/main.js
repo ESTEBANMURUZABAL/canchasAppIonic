@@ -66328,38 +66328,33 @@ var CanchasData = (function () {
             });
         });
     };
-    CanchasData.prototype.getCanchas = function () {
+    CanchasData.prototype.getCanchas = function (dayIndex, queryText, excludeTracks, segment) {
+        if (queryText === void 0) { queryText = ''; }
+        if (excludeTracks === void 0) { excludeTracks = []; }
+        if (segment === void 0) { segment = 'all'; }
         return this.load().then(function (data) {
-            return data.canchas;
+            return data;
         });
     };
-    CanchasData.prototype.filterSession = function (session, queryWords, excludeTracks, segment) {
+    CanchasData.prototype.filterCancha = function (cancha, queryWords, excludeTracks, segment) {
         var matchesQueryText = false;
         if (queryWords.length) {
-            // of any query word is in the session name than it passes the query test
+            // of any query word is in the cancha name than it passes the query test
             queryWords.forEach(function (queryWord) {
-                if (session.name.toLowerCase().indexOf(queryWord) > -1) {
+                if (cancha.name.toLowerCase().indexOf(queryWord) > -1) {
                     matchesQueryText = true;
                 }
             });
         }
         else {
-            // if there are no query words then this session passes the query test
+            // if there are no query words then this cancha passes the query test
             matchesQueryText = true;
         }
-        // if any of the sessions tracks are not in the
-        // exclude tracks then this session passes the track test
-        var matchesTracks = false;
-        session.tracks.forEach(function (trackName) {
-            if (excludeTracks.indexOf(trackName) === -1) {
-                matchesTracks = true;
-            }
-        });
-        // if the segement is 'favorites', but session is not a user favorite
-        // then this session does not pass the segment test
+        // if the segement is 'favorites', but cancha is not a user favorite
+        // then this cancha does not pass the segment test
         var matchesSegment = false;
         if (segment === 'favorites') {
-            if (this.user.hasFavorite(session.name)) {
+            if (this.user.hasFavorite(cancha.name)) {
                 matchesSegment = true;
             }
         }
@@ -66367,7 +66362,7 @@ var CanchasData = (function () {
             matchesSegment = true;
         }
         // all tests must be true if it should not be hidden
-        session.hide = !(matchesQueryText && matchesTracks && matchesSegment);
+        cancha.hide = !(matchesQueryText && matchesSegment);
     };
     CanchasData.prototype.getJugadores = function () {
         return this.load().then(function (data) {
@@ -66514,9 +66509,13 @@ var CanchaDetailPage = (function () {
         this.navParams = navParams;
         this.cancha = navParams.data;
     }
+    CanchaDetailPage.prototype.goToCanchaMap = function (cancha) {
+        // go to the session detail page
+        // and pass in the session data
+    };
     CanchaDetailPage = __decorate$14([
         Component({
-            selector: 'page-cancha-detail', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <ion-title>Cancha descripcion</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <h1>{{cancha.name}}</h1>\n\n  <h4>\n    {{cancha.name}}\n  </h4>\n\n  <p>\n    {{cancha.timeStart}} - {{cancha.timeEnd}}\n  </p>\n\n  <p>{{cancha.location}}</p>\n\n  <p>{{cancha.description}}</p>\n</ion-content>\n'
+            selector: 'page-cancha-detail', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <ion-title>Info</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <h1>{{cancha.name}}</h1>\n  <ion-list>\n    <ion-item>\n      <ion-icon name="information-circle"> {{cancha.description}}</ion-icon>\n    </ion-item>\n    <ion-item>\n      <ion-icon name="map"> {{cancha.location}}</ion-icon> \n    </ion-item>\n    <ion-item>\n      <ion-icon name="logo-whatsapp"> {{cancha.phoneNumber}}</ion-icon>   \n    </ion-item>\n    <ion-item>\n      <ion-icon name="pricetag"> ${{cancha.price}}</ion-icon>\n    </ion-item>\n  </ion-list>\n</ion-content>\n  '
         }), 
         __metadata$13('design:paramtypes', [(typeof (_a = typeof NavParams !== 'undefined' && NavParams) === 'function' && _a) || Object])
     ], CanchaDetailPage);
@@ -66559,8 +66558,9 @@ var CanchasPage = (function () {
         var _this = this;
         // Close any open sliding items when the canchas updates
         this.canchasList && this.canchasList.closeSlidingItems();
-        this.confData.getCanchas().then(function (canchas) {
-            _this.canchas = canchas;
+        this.confData.getCanchas(this.dayIndex, this.queryText, this.excludeTracks, this.segment).then(function (data) {
+            _this.shownCanchas = data.shownCanchas;
+            _this.chanchas = data.canchas;
         });
     };
     CanchasPage.prototype.presentFilter = function () {
@@ -66638,7 +66638,7 @@ var CanchasPage = (function () {
     ], CanchasPage.prototype, "canchasList", void 0);
     CanchasPage = __decorate$12([
         Component({
-            selector: 'page-canchas', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar no-border-bottom>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n\n    <ion-segment [(ngModel)]="segment" (ionChange)="updateCanchas()">\n      <ion-segment-button value="all">\n        All\n      </ion-segment-button>\n      <ion-segment-button value="favorites">\n        Favorites\n      </ion-segment-button>\n    </ion-segment>\n\n    <ion-buttons end>\n      <button ion-button icon-only (click)="presentFilter()">\n        <ion-icon ios="ios-options-outline" md="md-options"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-navbar>\n\n  <ion-toolbar no-border-top>\n    <ion-searchbar color="primary"\n                   [(ngModel)]="queryText"\n                   (ionInput)="updateCanchas()"\n                   placeholder="Search">\n    </ion-searchbar>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content>\n  <ion-list #canchasList> <!--[hidden]="shownSessions === 0"-->\n\n    <ion-item-group *ngFor="let cancha of canchas" ><!--[hidden]="canchas.hide"-->\n\n      <ion-item-divider sticky>\n        <div item-left>\n          {{cancha.name}}\n        </div>\n        <div item-right>\n          {{cancha.name}}\n        </div>\n      </ion-item-divider>\n\n      <ion-item-sliding><!-- #slidingItem [attr.track]="session.tracks[0] | lowercase" [hidden]="session.hide"-->\n\n        <button ion-item (click)="goToCanchaDetail(cancha)">\n          <h3>{{cancha.name}}</h3>\n          <p>\n            {{cancha.location}} &mdash;\n            {{cancha.description}}:\n            {{cancha.phoneNumber}}\n          </p>\n        </button>\n\n        <ion-item-options>\n          <button ion-button color="favorite" (click)="addFavorite(slidingItem, cancha)" *ngIf="segment === \'all\'">\n            Favorite\n          </button>\n          <button ion-button color="danger" (click)="removeFavorite(slidingItem, cancha, \'Remove Favorite\')" *ngIf="segment === \'favorites\'">\n            Remove\n          </button>\n        </ion-item-options>\n\n      </ion-item-sliding>\n\n    </ion-item-group>\n\n  </ion-list>\n\n<!--  <ion-list-header [hidden]="shownSessions > 0">\n      No Sessions Found\n  </ion-list-header>-->\n\n\n</ion-content>\n'
+            selector: 'page-canchas', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar no-border-bottom>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n\n    <ion-segment [(ngModel)]="segment" (ionChange)="updateCanchas()">\n      <ion-segment-button value="all">\n        All\n      </ion-segment-button>\n      <ion-segment-button value="favorites">\n        Favorites\n      </ion-segment-button>\n    </ion-segment>\n\n    <ion-buttons end>\n      <button ion-button icon-only (click)="presentFilter()">\n        <ion-icon ios="ios-options-outline" md="md-options"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-navbar>\n\n  <ion-toolbar no-border-top>\n    <ion-searchbar color="primary"\n                   [(ngModel)]="queryText"\n                   (ionInput)="updateCanchas()"\n                   placeholder="Search">\n    </ion-searchbar>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content>\n  <ion-list #canchasList> <!--[hidden]="shownSessions === 0"-->\n\n    <ion-item-group *ngFor="let cancha of canchas" ><!--[hidden]="canchas.hide"-->\n\n      <ion-item-sliding><!-- #slidingItem [attr.track]="session.tracks[0] | lowercase" [hidden]="session.hide"-->\n\n        <button ion-item (click)="goToCanchaDetail(cancha)">\n          <h3>{{cancha.name}}</h3>\n          <p>{{cancha.description}}</p>\n      \n        </button>\n\n        <ion-item-options>\n          <button ion-button color="favorite" (click)="addFavorite(slidingItem, cancha)" *ngIf="segment === \'all\'">\n            Favorite\n          </button>\n          <button ion-button color="danger" (click)="removeFavorite(slidingItem, cancha, \'Remove Favorite\')" *ngIf="segment === \'favorites\'">\n            Remove\n          </button>\n        </ion-item-options>\n\n      </ion-item-sliding>\n\n    </ion-item-group>\n\n  </ion-list>\n\n<!--  <ion-list-header [hidden]="shownSessions > 0">\n      No Sessions Found\n  </ion-list-header>-->\n\n\n</ion-content>\n'
         }), 
         __metadata$11('design:paramtypes', [(typeof (_b = typeof AlertController !== 'undefined' && AlertController) === 'function' && _b) || Object, (typeof (_c = typeof App !== 'undefined' && App) === 'function' && _c) || Object, (typeof (_d = typeof ModalController !== 'undefined' && ModalController) === 'function' && _d) || Object, (typeof (_e = typeof NavController !== 'undefined' && NavController) === 'function' && _e) || Object, (typeof (_f = typeof CanchasData !== 'undefined' && CanchasData) === 'function' && _f) || Object, (typeof (_g = typeof UserData !== 'undefined' && UserData) === 'function' && _g) || Object])
     ], CanchasPage);

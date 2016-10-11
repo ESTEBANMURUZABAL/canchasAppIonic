@@ -31,43 +31,35 @@ export class CanchasData {
     });
   }
 
-
-
-  getCanchas() {
+  getCanchas(dayIndex, queryText = '', excludeTracks = [], segment = 'all') {
     return this.load().then(data => {
-      return data.canchas;
+      
+     
+
+      return data;
     });
   }
 
-  filterSession(session, queryWords, excludeTracks, segment) {
+   filterCancha(cancha, queryWords, excludeTracks, segment) {
 
     let matchesQueryText = false;
     if (queryWords.length) {
-      // of any query word is in the session name than it passes the query test
+      // of any query word is in the cancha name than it passes the query test
       queryWords.forEach(queryWord => {
-        if (session.name.toLowerCase().indexOf(queryWord) > -1) {
+        if (cancha.name.toLowerCase().indexOf(queryWord) > -1) {
           matchesQueryText = true;
         }
       });
     } else {
-      // if there are no query words then this session passes the query test
+      // if there are no query words then this cancha passes the query test
       matchesQueryText = true;
     }
 
-    // if any of the sessions tracks are not in the
-    // exclude tracks then this session passes the track test
-    let matchesTracks = false;
-    session.tracks.forEach(trackName => {
-      if (excludeTracks.indexOf(trackName) === -1) {
-        matchesTracks = true;
-      }
-    });
-
-    // if the segement is 'favorites', but session is not a user favorite
-    // then this session does not pass the segment test
+    // if the segement is 'favorites', but cancha is not a user favorite
+    // then this cancha does not pass the segment test
     let matchesSegment = false;
     if (segment === 'favorites') {
-      if (this.user.hasFavorite(session.name)) {
+      if (this.user.hasFavorite(cancha.name)) {
         matchesSegment = true;
       }
     } else {
@@ -75,8 +67,10 @@ export class CanchasData {
     }
 
     // all tests must be true if it should not be hidden
-    session.hide = !(matchesQueryText && matchesTracks && matchesSegment);
+    cancha.hide = !(matchesQueryText && matchesSegment);
   }
+
+
 
   getJugadores() {
     return this.load().then(data => {

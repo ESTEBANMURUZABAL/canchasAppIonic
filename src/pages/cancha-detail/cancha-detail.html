@@ -1,21 +1,24 @@
 <ion-header>
   <ion-navbar>
-    <ion-title>Cancha descripcion</ion-title>
+    <ion-title>Info</ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
   <h1>{{cancha.name}}</h1>
-
-  <h4>
-    {{cancha.name}}
-  </h4>
-
-  <p>
-    {{cancha.timeStart}} - {{cancha.timeEnd}}
-  </p>
-
-  <p>{{cancha.location}}</p>
-
-  <p>{{cancha.description}}</p>
+  <ion-list>
+    <ion-item>
+      <ion-icon name="information-circle"> {{cancha.description}}</ion-icon>
+    </ion-item>
+    <ion-item>
+      <ion-icon name="map"> {{cancha.location}}</ion-icon> 
+    </ion-item>
+    <ion-item>
+      <ion-icon name="logo-whatsapp"> {{cancha.phoneNumber}}</ion-icon>   
+    </ion-item>
+    <ion-item>
+      <ion-icon name="pricetag"> ${{cancha.price}}</ion-icon>
+    </ion-item>
+  </ion-list>
 </ion-content>
+  

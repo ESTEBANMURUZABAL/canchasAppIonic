@@ -11,7 +11,7 @@ export class CanchasData {
 
   constructor(public http: Http, public user: UserData) {}
 
-  load() {
+    load() {
     if (this.data) {
       // already loaded data
       return Promise.resolve(this.data);
@@ -31,13 +31,14 @@ export class CanchasData {
     });
   }
 
+
+
   getCanchas() {
     return this.load().then(data => {
-      
-
       return data.canchas;
     });
   }
+
 
    filterCancha(cancha, queryWords, excludeTracks, segment) {
 

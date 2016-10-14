@@ -51,13 +51,12 @@ export class CanchasPage {
     this.updateCanchas();
   }
 
-  updateCanchas() {
+updateCanchas() {
     // Close any open sliding items when the canchas updates
     this.canchasList && this.canchasList.closeSlidingItems();
 
-    this.confData.getCanchas().then(data => {
-  
-      this.chanchas = data.canchas;
+    this.confData.getCanchas().then(canchas => {
+      this.canchas = canchas;
     });
   }
 

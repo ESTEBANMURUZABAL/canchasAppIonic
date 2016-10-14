@@ -3,7 +3,7 @@
 
 var global$1 = typeof global !== "undefined" ? global :
             typeof self !== "undefined" ? self :
-            typeof window !== "undefined" ? window : {}
+            typeof window !== "undefined" ? window : {};
 
 /**
  * @license
@@ -79,74 +79,6 @@ function stringify(token) {
     var newLineIndex = res.indexOf('\n');
     return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
 }
-var StringWrapper = (function () {
-    function StringWrapper() {
-    }
-    StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-    StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-    StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-    StringWrapper.equals = function (s, s2) { return s === s2; };
-    StringWrapper.stripLeft = function (s, charVal) {
-        if (s && s.length) {
-            var pos = 0;
-            for (var i = 0; i < s.length; i++) {
-                if (s[i] != charVal)
-                    break;
-                pos++;
-            }
-            s = s.substring(pos);
-        }
-        return s;
-    };
-    StringWrapper.stripRight = function (s, charVal) {
-        if (s && s.length) {
-            var pos = s.length;
-            for (var i = s.length - 1; i >= 0; i--) {
-                if (s[i] != charVal)
-                    break;
-                pos--;
-            }
-            s = s.substring(0, pos);
-        }
-        return s;
-    };
-    StringWrapper.replace = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.replaceAll = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.slice = function (s, from, to) {
-        if (from === void 0) { from = 0; }
-        if (to === void 0) { to = null; }
-        return s.slice(from, to === null ? undefined : to);
-    };
-    StringWrapper.replaceAllMapped = function (s, from, cb) {
-        return s.replace(from, function () {
-            var matches = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                matches[_i - 0] = arguments[_i];
-            }
-            // Remove offset & string from the result array
-            matches.splice(-2, 2);
-            // The callback receives match, p1, ..., pn
-            return cb(matches);
-        });
-    };
-    StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-    StringWrapper.compare = function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else if (a > b) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    };
-    return StringWrapper;
-}());
 
 var NumberWrapper = (function () {
     function NumberWrapper() {
@@ -247,8 +179,9 @@ function isPrimitive(obj) {
  * found in the LICENSE file at https://angular.io/license
  */
 var _nextClassId = 0;
+var Reflect$1 = _global.Reflect;
 function extractAnnotation(annotation) {
-    if (isFunction(annotation) && annotation.hasOwnProperty('annotation')) {
+    if (typeof annotation === 'function' && annotation.hasOwnProperty('annotation')) {
         // it is a decorator, extract annotation
         annotation = annotation.annotation;
     }
@@ -259,14 +192,14 @@ function applyParams(fnOrArray, key) {
         fnOrArray === Number || fnOrArray === Array) {
         throw new Error("Can not use native " + stringify(fnOrArray) + " as constructor");
     }
-    if (isFunction(fnOrArray)) {
+    if (typeof fnOrArray === 'function') {
         return fnOrArray;
     }
-    else if (fnOrArray instanceof Array) {
+    if (Array.isArray(fnOrArray)) {
         var annotations = fnOrArray;
         var annoLength = annotations.length - 1;
         var fn = fnOrArray[annoLength];
-        if (!isFunction(fn)) {
+        if (typeof fn !== 'function') {
             throw new Error("Last position of Class method array must be Function in key " + key + " was '" + stringify(fn) + "'");
         }
         if (annoLength != fn.length) {
@@ -277,12 +210,12 @@ function applyParams(fnOrArray, key) {
             var paramAnnotations = [];
             paramsAnnotations.push(paramAnnotations);
             var annotation = annotations[i];
-            if (annotation instanceof Array) {
+            if (Array.isArray(annotation)) {
                 for (var j = 0; j < annotation.length; j++) {
                     paramAnnotations.push(extractAnnotation(annotation[j]));
                 }
             }
-            else if (isFunction(annotation)) {
+            else if (typeof annotation === 'function') {
                 paramAnnotations.push(extractAnnotation(annotation));
             }
             else {
@@ -292,9 +225,7 @@ function applyParams(fnOrArray, key) {
         Reflect$1.defineMetadata('parameters', paramsAnnotations, fn);
         return fn;
     }
-    else {
-        throw new Error("Only Function or Array is supported in Class definition for key '" + key + "' is '" + stringify(fnOrArray) + "'");
-    }
+    throw new Error("Only Function or Array is supported in Class definition for key '" + key + "' is '" + stringify(fnOrArray) + "'");
 }
 /**
  * Provides a way for expressing ES6 classes with parameter annotations in ES5.
@@ -343,7 +274,7 @@ function applyParams(fnOrArray, key) {
  *
  * ```
  * var MyService = ng.Class({
- *   constructor: [String, [new Query(), QueryList], function(name, queryList) {
+ *   constructor: [String, [new Optional(), Service], function(name, myService) {
  *     ...
  *   }]
  * });
@@ -353,7 +284,7 @@ function applyParams(fnOrArray, key) {
  *
  * ```
  * class MyService {
- *   constructor(name: string, @Query() queryList: QueryList) {
+ *   constructor(name: string, @Optional() myService: Service) {
  *     ...
  *   }
  * }
@@ -382,7 +313,7 @@ function Class(clsDef) {
     var constructor = applyParams(clsDef.hasOwnProperty('constructor') ? clsDef.constructor : undefined, 'constructor');
     var proto = constructor.prototype;
     if (clsDef.hasOwnProperty('extends')) {
-        if (isFunction(clsDef.extends)) {
+        if (typeof clsDef.extends === 'function') {
             constructor.prototype = proto =
                 Object.create(clsDef.extends.prototype);
         }
@@ -391,7 +322,7 @@ function Class(clsDef) {
         }
     }
     for (var key in clsDef) {
-        if (key != 'extends' && key != 'prototype' && clsDef.hasOwnProperty(key)) {
+        if (key !== 'extends' && key !== 'prototype' && clsDef.hasOwnProperty(key)) {
             proto[key] = applyParams(clsDef[key], key);
         }
     }
@@ -404,7 +335,6 @@ function Class(clsDef) {
     }
     return constructor;
 }
-var Reflect$1 = _global.Reflect;
 function makeDecorator(name, props, parentClass, chainFn) {
     if (chainFn === void 0) { chainFn = null; }
     var metaCtor = makeMetadataCtor([props]);
@@ -416,22 +346,20 @@ function makeDecorator(name, props, parentClass, chainFn) {
             metaCtor.call(this, objOrType);
             return this;
         }
-        else {
-            var annotationInstance_1 = new DecoratorFactory(objOrType);
-            var chainAnnotation = isFunction(this) && this.annotations instanceof Array ? this.annotations : [];
-            chainAnnotation.push(annotationInstance_1);
-            var TypeDecorator = function TypeDecorator(cls) {
-                var annotations = Reflect$1.getOwnMetadata('annotations', cls) || [];
-                annotations.push(annotationInstance_1);
-                Reflect$1.defineMetadata('annotations', annotations, cls);
-                return cls;
-            };
-            TypeDecorator.annotations = chainAnnotation;
-            TypeDecorator.Class = Class;
-            if (chainFn)
-                chainFn(TypeDecorator);
-            return TypeDecorator;
-        }
+        var annotationInstance = new DecoratorFactory(objOrType);
+        var chainAnnotation = typeof this === 'function' && Array.isArray(this.annotations) ? this.annotations : [];
+        chainAnnotation.push(annotationInstance);
+        var TypeDecorator = function TypeDecorator(cls) {
+            var annotations = Reflect$1.getOwnMetadata('annotations', cls) || [];
+            annotations.push(annotationInstance);
+            Reflect$1.defineMetadata('annotations', annotations, cls);
+            return cls;
+        };
+        TypeDecorator.annotations = chainAnnotation;
+        TypeDecorator.Class = Class;
+        if (chainFn)
+            chainFn(TypeDecorator);
+        return TypeDecorator;
     }
     if (parentClass) {
         DecoratorFactory.prototype = Object.create(parentClass.prototype);
@@ -451,13 +379,12 @@ function makeMetadataCtor(props) {
             var argVal = args[i];
             if (Array.isArray(prop)) {
                 // plain parameter
-                var val = !argVal || argVal === undefined ? prop[1] : argVal;
-                _this[prop[0]] = val;
+                _this[prop[0]] = !argVal || argVal === undefined ? prop[1] : argVal;
             }
             else {
                 for (var propName in prop) {
-                    var val = !argVal || argVal[propName] === undefined ? prop[propName] : argVal[propName];
-                    _this[propName] = val;
+                    _this[propName] =
+                        !argVal || argVal[propName] === undefined ? prop[propName] : argVal[propName];
                 }
             }
         });
@@ -486,8 +413,7 @@ function makeParamDecorator(name, props, parentClass) {
                 parameters.push(null);
             }
             parameters[index] = parameters[index] || [];
-            var annotationsForParam = parameters[index];
-            annotationsForParam.push(annotationInstance);
+            parameters[index].push(annotationInstance);
             Reflect$1.defineMetadata('parameters', parameters, cls);
             return cls;
         }
@@ -511,15 +437,13 @@ function makePropDecorator(name, props, parentClass) {
             metaCtor.apply(this, args);
             return this;
         }
-        else {
-            var decoratorInstance = new ((_a = PropDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
-            return function PropDecorator(target, name) {
-                var meta = Reflect$1.getOwnMetadata('propMetadata', target.constructor) || {};
-                meta[name] = meta[name] || [];
-                meta[name].unshift(decoratorInstance);
-                Reflect$1.defineMetadata('propMetadata', meta, target.constructor);
-            };
-        }
+        var decoratorInstance = new ((_a = PropDecoratorFactory).bind.apply(_a, [void 0].concat(args)))();
+        return function PropDecorator(target, name) {
+            var meta = Reflect$1.getOwnMetadata('propMetadata', target.constructor) || {};
+            meta[name] = meta[name] || [];
+            meta[name].unshift(decoratorInstance);
+            Reflect$1.defineMetadata('propMetadata', meta, target.constructor);
+        };
         var _a;
     }
     if (parentClass) {
@@ -2099,20 +2023,15 @@ var ReflectionCapabilities = (function () {
         this._reflect = reflect || _global.Reflect;
     }
     ReflectionCapabilities.prototype.isReflectionEnabled = function () { return true; };
-    ReflectionCapabilities.prototype.factory = function (t) {
-        var prototype = t.prototype;
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i - 0] = arguments[_i];
-            }
-            var instance = Object.create(prototype);
-            t.apply(instance, args);
-            return instance;
-        };
-    };
+    ReflectionCapabilities.prototype.factory = function (t) { return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i - 0] = arguments[_i];
+        }
+        return new (t.bind.apply(t, [void 0].concat(args)))();
+    }; };
     /** @internal */
-    ReflectionCapabilities.prototype._zipTypesAndAnnotations = function (paramTypes /** TODO #9100 */, paramAnnotations /** TODO #9100 */) {
+    ReflectionCapabilities.prototype._zipTypesAndAnnotations = function (paramTypes, paramAnnotations) {
         var result;
         if (typeof paramTypes === 'undefined') {
             result = new Array(paramAnnotations.length);
@@ -2133,42 +2052,40 @@ var ReflectionCapabilities = (function () {
             else {
                 result[i] = [];
             }
-            if (isPresent(paramAnnotations) && isPresent(paramAnnotations[i])) {
+            if (paramAnnotations && isPresent(paramAnnotations[i])) {
                 result[i] = result[i].concat(paramAnnotations[i]);
             }
         }
         return result;
     };
-    ReflectionCapabilities.prototype.parameters = function (typeOrFunc) {
+    ReflectionCapabilities.prototype.parameters = function (type) {
         // Prefer the direct API.
-        if (isPresent(typeOrFunc.parameters)) {
-            return typeOrFunc.parameters;
+        if (type.parameters) {
+            return type.parameters;
         }
         // API of tsickle for lowering decorators to properties on the class.
-        if (isPresent(typeOrFunc.ctorParameters)) {
-            var ctorParameters = typeOrFunc.ctorParameters;
-            var paramTypes_1 = ctorParameters.map(function (ctorParam /** TODO #9100 */) { return ctorParam && ctorParam.type; });
-            var paramAnnotations_1 = ctorParameters.map(function (ctorParam /** TODO #9100 */) {
+        if (type.ctorParameters) {
+            var ctorParameters = type.ctorParameters;
+            var paramTypes = ctorParameters.map(function (ctorParam) { return ctorParam && ctorParam.type; });
+            var paramAnnotations = ctorParameters.map(function (ctorParam) {
                 return ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators);
             });
-            return this._zipTypesAndAnnotations(paramTypes_1, paramAnnotations_1);
+            return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
         }
         // API for metadata created by invoking the decorators.
         if (isPresent(this._reflect) && isPresent(this._reflect.getMetadata)) {
-            var paramAnnotations = this._reflect.getMetadata('parameters', typeOrFunc);
-            var paramTypes = this._reflect.getMetadata('design:paramtypes', typeOrFunc);
-            if (isPresent(paramTypes) || isPresent(paramAnnotations)) {
+            var paramAnnotations = this._reflect.getMetadata('parameters', type);
+            var paramTypes = this._reflect.getMetadata('design:paramtypes', type);
+            if (paramTypes || paramAnnotations) {
                 return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
             }
         }
         // The array has to be filled with `undefined` because holes would be skipped by `some`
-        var parameters = new Array(typeOrFunc.length);
-        parameters.fill(undefined);
-        return parameters;
+        return new Array(type.length).fill(undefined);
     };
     ReflectionCapabilities.prototype.annotations = function (typeOrFunc) {
         // Prefer the direct API.
-        if (isPresent(typeOrFunc.annotations)) {
+        if (typeOrFunc.annotations) {
             var annotations = typeOrFunc.annotations;
             if (isFunction(annotations) && annotations.annotations) {
                 annotations = annotations.annotations;
@@ -2176,20 +2093,20 @@ var ReflectionCapabilities = (function () {
             return annotations;
         }
         // API of tsickle for lowering decorators to properties on the class.
-        if (isPresent(typeOrFunc.decorators)) {
+        if (typeOrFunc.decorators) {
             return convertTsickleDecoratorIntoMetadata(typeOrFunc.decorators);
         }
         // API for metadata created by invoking the decorators.
-        if (isPresent(this._reflect) && isPresent(this._reflect.getMetadata)) {
+        if (this._reflect && this._reflect.getMetadata) {
             var annotations = this._reflect.getMetadata('annotations', typeOrFunc);
-            if (isPresent(annotations))
+            if (annotations)
                 return annotations;
         }
         return [];
     };
     ReflectionCapabilities.prototype.propMetadata = function (typeOrFunc) {
         // Prefer the direct API.
-        if (isPresent(typeOrFunc.propMetadata)) {
+        if (typeOrFunc.propMetadata) {
             var propMetadata = typeOrFunc.propMetadata;
             if (isFunction(propMetadata) && propMetadata.propMetadata) {
                 propMetadata = propMetadata.propMetadata;
@@ -2197,7 +2114,7 @@ var ReflectionCapabilities = (function () {
             return propMetadata;
         }
         // API of tsickle for lowering decorators to properties on the class.
-        if (isPresent(typeOrFunc.propDecorators)) {
+        if (typeOrFunc.propDecorators) {
             var propDecorators_1 = typeOrFunc.propDecorators;
             var propMetadata_1 = {};
             Object.keys(propDecorators_1).forEach(function (prop) {
@@ -2206,9 +2123,9 @@ var ReflectionCapabilities = (function () {
             return propMetadata_1;
         }
         // API for metadata created by invoking the decorators.
-        if (isPresent(this._reflect) && isPresent(this._reflect.getMetadata)) {
+        if (this._reflect && this._reflect.getMetadata) {
             var propMetadata = this._reflect.getMetadata('propMetadata', typeOrFunc);
-            if (isPresent(propMetadata))
+            if (propMetadata)
                 return propMetadata;
         }
         return {};
@@ -2323,7 +2240,7 @@ var Reflector = (function (_super) {
      */
     Reflector.prototype.listUnusedKeys = function () {
         var _this = this;
-        if (this._usedKeys == null) {
+        if (!this._usedKeys) {
             throw new Error('Usage tracking is disabled');
         }
         var allTypes = MapWrapper.keys(this._injectableInfo);
@@ -2340,85 +2257,55 @@ var Reflector = (function (_super) {
     Reflector.prototype.registerMethods = function (methods) { _mergeMaps(this._methods, methods); };
     Reflector.prototype.factory = function (type) {
         if (this._containsReflectionInfo(type)) {
-            var res = this._getReflectionInfo(type).factory;
-            return isPresent(res) ? res : null;
+            return this._getReflectionInfo(type).factory || null;
         }
-        else {
-            return this.reflectionCapabilities.factory(type);
-        }
+        return this.reflectionCapabilities.factory(type);
     };
     Reflector.prototype.parameters = function (typeOrFunc) {
         if (this._injectableInfo.has(typeOrFunc)) {
-            var res = this._getReflectionInfo(typeOrFunc).parameters;
-            return isPresent(res) ? res : [];
+            return this._getReflectionInfo(typeOrFunc).parameters || [];
         }
-        else {
-            return this.reflectionCapabilities.parameters(typeOrFunc);
-        }
+        return this.reflectionCapabilities.parameters(typeOrFunc);
     };
     Reflector.prototype.annotations = function (typeOrFunc) {
         if (this._injectableInfo.has(typeOrFunc)) {
-            var res = this._getReflectionInfo(typeOrFunc).annotations;
-            return isPresent(res) ? res : [];
+            return this._getReflectionInfo(typeOrFunc).annotations || [];
         }
-        else {
-            return this.reflectionCapabilities.annotations(typeOrFunc);
-        }
+        return this.reflectionCapabilities.annotations(typeOrFunc);
     };
     Reflector.prototype.propMetadata = function (typeOrFunc) {
         if (this._injectableInfo.has(typeOrFunc)) {
-            var res = this._getReflectionInfo(typeOrFunc).propMetadata;
-            return isPresent(res) ? res : {};
+            return this._getReflectionInfo(typeOrFunc).propMetadata || {};
         }
-        else {
-            return this.reflectionCapabilities.propMetadata(typeOrFunc);
-        }
+        return this.reflectionCapabilities.propMetadata(typeOrFunc);
     };
     Reflector.prototype.interfaces = function (type) {
         if (this._injectableInfo.has(type)) {
-            var res = this._getReflectionInfo(type).interfaces;
-            return isPresent(res) ? res : [];
+            return this._getReflectionInfo(type).interfaces || [];
         }
-        else {
-            return this.reflectionCapabilities.interfaces(type);
-        }
+        return this.reflectionCapabilities.interfaces(type);
     };
     Reflector.prototype.hasLifecycleHook = function (type, lcInterface, lcProperty) {
-        var interfaces = this.interfaces(type);
-        if (interfaces.indexOf(lcInterface) !== -1) {
+        if (this.interfaces(type).indexOf(lcInterface) !== -1) {
             return true;
         }
-        else {
-            return this.reflectionCapabilities.hasLifecycleHook(type, lcInterface, lcProperty);
-        }
+        return this.reflectionCapabilities.hasLifecycleHook(type, lcInterface, lcProperty);
     };
     Reflector.prototype.getter = function (name) {
-        if (this._getters.has(name)) {
-            return this._getters.get(name);
-        }
-        else {
-            return this.reflectionCapabilities.getter(name);
-        }
+        return this._getters.has(name) ? this._getters.get(name) :
+            this.reflectionCapabilities.getter(name);
     };
     Reflector.prototype.setter = function (name) {
-        if (this._setters.has(name)) {
-            return this._setters.get(name);
-        }
-        else {
-            return this.reflectionCapabilities.setter(name);
-        }
+        return this._setters.has(name) ? this._setters.get(name) :
+            this.reflectionCapabilities.setter(name);
     };
     Reflector.prototype.method = function (name) {
-        if (this._methods.has(name)) {
-            return this._methods.get(name);
-        }
-        else {
-            return this.reflectionCapabilities.method(name);
-        }
+        return this._methods.has(name) ? this._methods.get(name) :
+            this.reflectionCapabilities.method(name);
     };
     /** @internal */
     Reflector.prototype._getReflectionInfo = function (typeOrFunc) {
-        if (isPresent(this._usedKeys)) {
+        if (this._usedKeys) {
             this._usedKeys.add(typeOrFunc);
         }
         return this._injectableInfo.get(typeOrFunc);
@@ -3684,7 +3571,7 @@ var APP_ID_RANDOM_PROVIDER = {
     deps: [],
 };
 function _randomChar() {
-    return StringWrapper.fromCharCode(97 + Math.floor(Math.random() * 25));
+    return String.fromCharCode(97 + Math.floor(Math.random() * 25));
 }
 /**
  * A function that will be executed when a platform is initialized.
@@ -3870,7 +3757,7 @@ var DefaultIterableDiffer = (function () {
         // Keeps track of records where custom track by is the same, but item identity has changed
         this._identityChangesHead = null;
         this._identityChangesTail = null;
-        this._trackByFn = isPresent(this._trackByFn) ? this._trackByFn : trackByIdentity;
+        this._trackByFn = this._trackByFn || trackByIdentity;
     }
     Object.defineProperty(DefaultIterableDiffer.prototype, "collection", {
         get: function () { return this._collection; },
@@ -5470,7 +5357,7 @@ var ViewContainerRef_ = (function () {
         if (injector === void 0) { injector = null; }
         if (projectableNodes === void 0) { projectableNodes = null; }
         var s = this._createComponentInContainerScope();
-        var contextInjector = isPresent(injector) ? injector : this._element.parentInjector;
+        var contextInjector = injector || this._element.parentInjector;
         var componentRef = componentFactory.create(contextInjector, projectableNodes);
         this.insert(componentRef.hostView, index);
         return wtfLeave(s, componentRef);
@@ -7304,9 +7191,9 @@ var EventEmitter = (function (_super) {
         var errorFn = function (err) { return null; };
         var completeFn = function () { return null; };
         if (generatorOrNext && typeof generatorOrNext === 'object') {
-            schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
+            schedulerFn = this.__isAsync ? function (value) {
                 setTimeout(function () { return generatorOrNext.next(value); });
-            } : function (value /** TODO #9100 */) { generatorOrNext.next(value); };
+            } : function (value) { generatorOrNext.next(value); };
             if (generatorOrNext.error) {
                 errorFn = this.__isAsync ? function (err) { setTimeout(function () { return generatorOrNext.error(err); }); } :
                     function (err) { generatorOrNext.error(err); };
@@ -7317,9 +7204,8 @@ var EventEmitter = (function (_super) {
             }
         }
         else {
-            schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
-                setTimeout(function () { return generatorOrNext(value); });
-            } : function (value /** TODO #9100 */) { generatorOrNext(value); };
+            schedulerFn = this.__isAsync ? function (value) { setTimeout(function () { return generatorOrNext(value); }); } :
+                function (value) { generatorOrNext(value); };
             if (error) {
                 errorFn =
                     this.__isAsync ? function (err) { setTimeout(function () { return error(err); }); } : function (err) { error(err); };
@@ -7341,100 +7227,22 @@ var EventEmitter = (function (_super) {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var NgZoneImpl = (function () {
-    function NgZoneImpl(_a) {
-        var _this = this;
-        var trace = _a.trace, onEnter = _a.onEnter, onLeave = _a.onLeave, setMicrotask = _a.setMicrotask, setMacrotask = _a.setMacrotask, onError = _a.onError;
-        this.onEnter = onEnter;
-        this.onLeave = onLeave;
-        this.setMicrotask = setMicrotask;
-        this.setMacrotask = setMacrotask;
-        this.onError = onError;
-        if (typeof Zone == 'undefined') {
-            throw new Error('Angular requires Zone.js prolyfill.');
-        }
-        Zone.assertZonePatched();
-        this.outer = this.inner = Zone.current;
-        if (Zone['wtfZoneSpec']) {
-            this.inner = this.inner.fork(Zone['wtfZoneSpec']);
-        }
-        if (trace && Zone['longStackTraceZoneSpec']) {
-            this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
-        }
-        this.inner = this.inner.fork({
-            name: 'angular',
-            properties: { 'isAngularZone': true },
-            onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
-                try {
-                    _this.onEnter();
-                    return delegate.invokeTask(target, task, applyThis, applyArgs);
-                }
-                finally {
-                    _this.onLeave();
-                }
-            },
-            onInvoke: function (delegate, current, target, callback, applyThis, applyArgs, source) {
-                try {
-                    _this.onEnter();
-                    return delegate.invoke(target, callback, applyThis, applyArgs, source);
-                }
-                finally {
-                    _this.onLeave();
-                }
-            },
-            onHasTask: function (delegate, current, target, hasTaskState) {
-                delegate.hasTask(target, hasTaskState);
-                if (current === target) {
-                    // We are only interested in hasTask events which originate from our zone
-                    // (A child hasTask event is not interesting to us)
-                    if (hasTaskState.change == 'microTask') {
-                        _this.setMicrotask(hasTaskState.microTask);
-                    }
-                    else if (hasTaskState.change == 'macroTask') {
-                        _this.setMacrotask(hasTaskState.macroTask);
-                    }
-                }
-            },
-            onHandleError: function (delegate, current, target, error) {
-                delegate.handleError(target, error);
-                _this.onError(error);
-                return false;
-            }
-        });
-    }
-    NgZoneImpl.isInAngularZone = function () { return Zone.current.get('isAngularZone') === true; };
-    NgZoneImpl.prototype.runInner = function (fn) { return this.inner.run(fn); };
-    
-    NgZoneImpl.prototype.runInnerGuarded = function (fn) { return this.inner.runGuarded(fn); };
-    
-    NgZoneImpl.prototype.runOuter = function (fn) { return this.outer.run(fn); };
-    
-    return NgZoneImpl;
-}());
-
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 /**
  * An injectable service for executing work inside or outside of the Angular zone.
  *
  * The most common use of this service is to optimize performance when starting a work consisting of
  * one or more asynchronous tasks that don't require UI updates or error handling to be handled by
- * Angular. Such tasks can be kicked off via {@link #runOutsideAngular} and if needed, these tasks
- * can reenter the Angular zone via {@link #run}.
+ * Angular. Such tasks can be kicked off via {@link runOutsideAngular} and if needed, these tasks
+ * can reenter the Angular zone via {@link run}.
  *
  * <!-- TODO: add/fix links to:
  *   - docs explaining zones and the use of zones in Angular and change-detection
  *   - link to runOutsideAngular/run (throughout this file!)
  *   -->
  *
- * ### Example ([live demo](http://plnkr.co/edit/lY9m8HLy7z06vDoUaSN2?p=preview))
+ * ### Example
  * ```
- * import {Component, View, NgZone} from '@angular/core';
+ * import {Component, NgZone} from '@angular/core';
  * import {NgIf} from '@angular/common';
  *
  * @Component({
@@ -7475,7 +7283,6 @@ var NgZoneImpl = (function () {
  *     }}));
  *   }
  *
- *
  *   _increaseProgress(doneCallback: () => void) {
  *     this.progress += 1;
  *     console.log(`Current progress: ${this.progress}%`);
@@ -7492,81 +7299,70 @@ var NgZoneImpl = (function () {
  */
 var NgZone = (function () {
     function NgZone(_a) {
-        var _this = this;
         var _b = _a.enableLongStackTrace, enableLongStackTrace = _b === void 0 ? false : _b;
         this._hasPendingMicrotasks = false;
         this._hasPendingMacrotasks = false;
-        /** @internal */
         this._isStable = true;
-        /** @internal */
         this._nesting = 0;
-        /** @internal */
         this._onUnstable = new EventEmitter(false);
-        /** @internal */
         this._onMicrotaskEmpty = new EventEmitter(false);
-        /** @internal */
         this._onStable = new EventEmitter(false);
-        /** @internal */
         this._onErrorEvents = new EventEmitter(false);
-        this._zoneImpl = new NgZoneImpl({
-            trace: enableLongStackTrace,
-            onEnter: function () {
-                // console.log('ZONE.enter', this._nesting, this._isStable);
-                _this._nesting++;
-                if (_this._isStable) {
-                    _this._isStable = false;
-                    _this._onUnstable.emit(null);
-                }
-            },
-            onLeave: function () {
-                _this._nesting--;
-                // console.log('ZONE.leave', this._nesting, this._isStable);
-                _this._checkStable();
-            },
-            setMicrotask: function (hasMicrotasks) {
-                _this._hasPendingMicrotasks = hasMicrotasks;
-                _this._checkStable();
-            },
-            setMacrotask: function (hasMacrotasks) { _this._hasPendingMacrotasks = hasMacrotasks; },
-            onError: function (error) { return _this._onErrorEvents.emit(error); }
-        });
+        if (typeof Zone == 'undefined') {
+            throw new Error('Angular requires Zone.js prolyfill.');
+        }
+        Zone.assertZonePatched();
+        this.outer = this.inner = Zone.current;
+        if (Zone['wtfZoneSpec']) {
+            this.inner = this.inner.fork(Zone['wtfZoneSpec']);
+        }
+        if (enableLongStackTrace && Zone['longStackTraceZoneSpec']) {
+            this.inner = this.inner.fork(Zone['longStackTraceZoneSpec']);
+        }
+        this.forkInnerZoneWithAngularBehavior();
     }
-    NgZone.isInAngularZone = function () { return NgZoneImpl.isInAngularZone(); };
+    NgZone.isInAngularZone = function () { return Zone.current.get('isAngularZone') === true; };
     NgZone.assertInAngularZone = function () {
-        if (!NgZoneImpl.isInAngularZone()) {
+        if (!NgZone.isInAngularZone()) {
             throw new Error('Expected to be in Angular Zone, but it is not!');
         }
     };
     NgZone.assertNotInAngularZone = function () {
-        if (NgZoneImpl.isInAngularZone()) {
+        if (NgZone.isInAngularZone()) {
             throw new Error('Expected to not be in Angular Zone, but it is!');
         }
     };
-    NgZone.prototype._checkStable = function () {
-        var _this = this;
-        if (this._nesting == 0) {
-            if (!this._hasPendingMicrotasks && !this._isStable) {
-                try {
-                    // console.log('ZONE.microtaskEmpty');
-                    this._nesting++;
-                    this._onMicrotaskEmpty.emit(null);
-                }
-                finally {
-                    this._nesting--;
-                    if (!this._hasPendingMicrotasks) {
-                        try {
-                            // console.log('ZONE.stable', this._nesting, this._isStable);
-                            this.runOutsideAngular(function () { return _this._onStable.emit(null); });
-                        }
-                        finally {
-                            this._isStable = true;
-                        }
-                    }
-                }
-            }
-        }
-    };
-    
+    /**
+     * Executes the `fn` function synchronously within the Angular zone and returns value returned by
+     * the function.
+     *
+     * Running functions via `run` allows you to reenter Angular zone from a task that was executed
+     * outside of the Angular zone (typically started via {@link runOutsideAngular}).
+     *
+     * Any future tasks or microtasks scheduled from within this function will continue executing from
+     * within the Angular zone.
+     *
+     * If a synchronous error happens it will be rethrown and not reported via `onError`.
+     */
+    NgZone.prototype.run = function (fn) { return this.inner.run(fn); };
+    /**
+     * Same as `run`, except that synchronous errors are caught and forwarded via `onError` and not
+     * rethrown.
+     */
+    NgZone.prototype.runGuarded = function (fn) { return this.inner.runGuarded(fn); };
+    /**
+     * Executes the `fn` function synchronously in Angular's parent zone and returns value returned by
+     * the function.
+     *
+     * Running functions via `runOutsideAngular` allows you to escape Angular's zone and do work that
+     * doesn't trigger Angular change-detection or is subject to Angular's error handling.
+     *
+     * Any future tasks or microtasks scheduled from within this function will continue executing from
+     * outside of the Angular zone.
+     *
+     * Use {@link run} to reenter the Angular zone and do work that updates the application model.
+     */
+    NgZone.prototype.runOutsideAngular = function (fn) { return this.outer.run(fn); };
     Object.defineProperty(NgZone.prototype, "onUnstable", {
         /**
          * Notifies when code enters Angular Zone. This gets fired first on VM Turn.
@@ -7605,59 +7401,102 @@ var NgZone = (function () {
     });
     Object.defineProperty(NgZone.prototype, "isStable", {
         /**
-         * Whether there are no outstanding microtasks or microtasks.
+         * Whether there are no outstanding microtasks or macrotasks.
          */
         get: function () { return this._isStable; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(NgZone.prototype, "hasPendingMicrotasks", {
-        /**
-         * Whether there are any outstanding microtasks.
-         */
         get: function () { return this._hasPendingMicrotasks; },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(NgZone.prototype, "hasPendingMacrotasks", {
-        /**
-         * Whether there are any outstanding microtasks.
-         */
         get: function () { return this._hasPendingMacrotasks; },
         enumerable: true,
         configurable: true
     });
-    /**
-     * Executes the `fn` function synchronously within the Angular zone and returns value returned by
-     * the function.
-     *
-     * Running functions via `run` allows you to reenter Angular zone from a task that was executed
-     * outside of the Angular zone (typically started via {@link #runOutsideAngular}).
-     *
-     * Any future tasks or microtasks scheduled from within this function will continue executing from
-     * within the Angular zone.
-     *
-     * If a synchronous error happens it will be rethrown and not reported via `onError`.
-     */
-    NgZone.prototype.run = function (fn) { return this._zoneImpl.runInner(fn); };
-    /**
-     * Same as #run, except that synchronous errors are caught and forwarded
-     * via `onError` and not rethrown.
-     */
-    NgZone.prototype.runGuarded = function (fn) { return this._zoneImpl.runInnerGuarded(fn); };
-    /**
-     * Executes the `fn` function synchronously in Angular's parent zone and returns value returned by
-     * the function.
-     *
-     * Running functions via `runOutsideAngular` allows you to escape Angular's zone and do work that
-     * doesn't trigger Angular change-detection or is subject to Angular's error handling.
-     *
-     * Any future tasks or microtasks scheduled from within this function will continue executing from
-     * outside of the Angular zone.
-     *
-     * Use {@link #run} to reenter the Angular zone and do work that updates the application model.
-     */
-    NgZone.prototype.runOutsideAngular = function (fn) { return this._zoneImpl.runOuter(fn); };
+    NgZone.prototype.checkStable = function () {
+        var _this = this;
+        if (this._nesting == 0 && !this._hasPendingMicrotasks && !this._isStable) {
+            try {
+                this._nesting++;
+                this._onMicrotaskEmpty.emit(null);
+            }
+            finally {
+                this._nesting--;
+                if (!this._hasPendingMicrotasks) {
+                    try {
+                        this.runOutsideAngular(function () { return _this._onStable.emit(null); });
+                    }
+                    finally {
+                        this._isStable = true;
+                    }
+                }
+            }
+        }
+    };
+    NgZone.prototype.forkInnerZoneWithAngularBehavior = function () {
+        var _this = this;
+        this.inner = this.inner.fork({
+            name: 'angular',
+            properties: { 'isAngularZone': true },
+            onInvokeTask: function (delegate, current, target, task, applyThis, applyArgs) {
+                try {
+                    _this.onEnter();
+                    return delegate.invokeTask(target, task, applyThis, applyArgs);
+                }
+                finally {
+                    _this.onLeave();
+                }
+            },
+            onInvoke: function (delegate, current, target, callback, applyThis, applyArgs, source) {
+                try {
+                    _this.onEnter();
+                    return delegate.invoke(target, callback, applyThis, applyArgs, source);
+                }
+                finally {
+                    _this.onLeave();
+                }
+            },
+            onHasTask: function (delegate, current, target, hasTaskState) {
+                delegate.hasTask(target, hasTaskState);
+                if (current === target) {
+                    // We are only interested in hasTask events which originate from our zone
+                    // (A child hasTask event is not interesting to us)
+                    if (hasTaskState.change == 'microTask') {
+                        _this.setHasMicrotask(hasTaskState.microTask);
+                    }
+                    else if (hasTaskState.change == 'macroTask') {
+                        _this.setHasMacrotask(hasTaskState.macroTask);
+                    }
+                }
+            },
+            onHandleError: function (delegate, current, target, error) {
+                delegate.handleError(target, error);
+                _this.triggerError(error);
+                return false;
+            }
+        });
+    };
+    NgZone.prototype.onEnter = function () {
+        this._nesting++;
+        if (this._isStable) {
+            this._isStable = false;
+            this._onUnstable.emit(null);
+        }
+    };
+    NgZone.prototype.onLeave = function () {
+        this._nesting--;
+        this.checkStable();
+    };
+    NgZone.prototype.setHasMicrotask = function (hasMicrotasks) {
+        this._hasPendingMicrotasks = hasMicrotasks;
+        this.checkStable();
+    };
+    NgZone.prototype.setHasMacrotask = function (hasMacrotasks) { this._hasPendingMacrotasks = hasMacrotasks; };
+    NgZone.prototype.triggerError = function (error) { this._onErrorEvents.emit(error); };
     return NgZone;
 }());
 
@@ -9904,6 +9743,22 @@ var AnimationGroupMetadata = (function (_super) {
  * ])
  * ```
  *
+ * ### Transition Aliases (`:enter` and `:leave`)
+ *
+ * Given that enter (insertion) and leave (removal) animations are so common,
+ * the `transition` function accepts both `:enter` and `:leave` values which
+ * are aliases for the `void => *` and `* => void` state changes.
+ *
+ * ```
+ * transition(":enter", [
+ *   style({ opacity: 0 }),
+ *   animate(500, style({ opacity: 1 }))
+ * ])
+ * transition(":leave", [
+ *   animate(500, style({ opacity: 0 }))
+ * ])
+ * ```
+ *
  * ### Example ([live demo](http://plnkr.co/edit/Kez8XGWBxWue7qP7nNvF?p=preview))
  *
  * {@example core/animation/ts/dsl/animation_example.ts region='Component'}
@@ -10998,257 +10853,6 @@ var __core_private__ = {
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-var globalScope$1;
-if (typeof window === 'undefined') {
-    if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
-        // TODO: Replace any with WorkerGlobalScope from lib.webworker.d.ts #3492
-        globalScope$1 = self;
-    }
-    else {
-        globalScope$1 = global$1;
-    }
-}
-else {
-    globalScope$1 = window;
-}
-
-// Need to declare a new variable for global here since TypeScript
-// exports the original value of the symbol.
-var _global$1 = globalScope$1;
-
-// TODO: remove calls to assert in production environment
-// Note: Can't just export this and import in in other files
-// as `assert` is a reserved keyword in Dart
-_global$1.assert = function assert(condition) {
-    // TODO: to be fixed properly via #2830, noop for now
-};
-function isPresent$1(obj) {
-    return obj !== undefined && obj !== null;
-}
-function isBlank$1(obj) {
-    return obj === undefined || obj === null;
-}
-
-
-function isString$1(obj) {
-    return typeof obj === 'string';
-}
-
-
-function isStringMap$1(obj) {
-    return typeof obj === 'object' && obj !== null;
-}
-var STRING_MAP_PROTO$1 = Object.getPrototypeOf({});
-function isStrictStringMap$1(obj) {
-    return isStringMap$1(obj) && Object.getPrototypeOf(obj) === STRING_MAP_PROTO$1;
-}
-function isArray$3(obj) {
-    return Array.isArray(obj);
-}
-
-
-function stringify$1(token) {
-    if (typeof token === 'string') {
-        return token;
-    }
-    if (token === undefined || token === null) {
-        return '' + token;
-    }
-    if (token.overriddenName) {
-        return token.overriddenName;
-    }
-    if (token.name) {
-        return token.name;
-    }
-    var res = token.toString();
-    var newLineIndex = res.indexOf('\n');
-    return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
-}
-var StringWrapper$1 = (function () {
-    function StringWrapper() {
-    }
-    StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-    StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-    StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-    StringWrapper.equals = function (s, s2) { return s === s2; };
-    StringWrapper.stripLeft = function (s, charVal) {
-        if (s && s.length) {
-            var pos = 0;
-            for (var i = 0; i < s.length; i++) {
-                if (s[i] != charVal)
-                    break;
-                pos++;
-            }
-            s = s.substring(pos);
-        }
-        return s;
-    };
-    StringWrapper.stripRight = function (s, charVal) {
-        if (s && s.length) {
-            var pos = s.length;
-            for (var i = s.length - 1; i >= 0; i--) {
-                if (s[i] != charVal)
-                    break;
-                pos--;
-            }
-            s = s.substring(0, pos);
-        }
-        return s;
-    };
-    StringWrapper.replace = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.replaceAll = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.slice = function (s, from, to) {
-        if (from === void 0) { from = 0; }
-        if (to === void 0) { to = null; }
-        return s.slice(from, to === null ? undefined : to);
-    };
-    StringWrapper.replaceAllMapped = function (s, from, cb) {
-        return s.replace(from, function () {
-            var matches = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                matches[_i - 0] = arguments[_i];
-            }
-            // Remove offset & string from the result array
-            matches.splice(-2, 2);
-            // The callback receives match, p1, ..., pn
-            return cb(matches);
-        });
-    };
-    StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-    StringWrapper.compare = function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else if (a > b) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    };
-    return StringWrapper;
-}());
-var StringJoiner$1 = (function () {
-    function StringJoiner(parts) {
-        if (parts === void 0) { parts = []; }
-        this.parts = parts;
-    }
-    StringJoiner.prototype.add = function (part) { this.parts.push(part); };
-    StringJoiner.prototype.toString = function () { return this.parts.join(''); };
-    return StringJoiner;
-}());
-var NumberWrapper$1 = (function () {
-    function NumberWrapper() {
-    }
-    NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
-    NumberWrapper.equal = function (a, b) { return a === b; };
-    NumberWrapper.parseIntAutoRadix = function (text) {
-        var result = parseInt(text);
-        if (isNaN(result)) {
-            throw new Error('Invalid integer literal when parsing ' + text);
-        }
-        return result;
-    };
-    NumberWrapper.parseInt = function (text, radix) {
-        if (radix == 10) {
-            if (/^(\-|\+)?[0-9]+$/.test(text)) {
-                return parseInt(text, radix);
-            }
-        }
-        else if (radix == 16) {
-            if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
-                return parseInt(text, radix);
-            }
-        }
-        else {
-            var result = parseInt(text, radix);
-            if (!isNaN(result)) {
-                return result;
-            }
-        }
-        throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
-    };
-    Object.defineProperty(NumberWrapper, "NaN", {
-        get: function () { return NaN; },
-        enumerable: true,
-        configurable: true
-    });
-    NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
-    NumberWrapper.isNaN = function (value) { return isNaN(value); };
-    NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
-    return NumberWrapper;
-}());
-
-
-// JS has NaN !== NaN
-
-// JS considers NaN is the same as NaN for map Key (while NaN !== NaN otherwise)
-// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
-
-function normalizeBlank$1(obj) {
-    return isBlank$1(obj) ? null : obj;
-}
-function normalizeBool$1(obj) {
-    return isBlank$1(obj) ? false : obj;
-}
-function isJsObject$1(o) {
-    return o !== null && (typeof o === 'function' || typeof o === 'object');
-}
-
-
-// Can't be all uppercase as our transpiler would think it is a special directive...
-
-
-var _symbolIterator$1 = null;
-function getSymbolIterator$1() {
-    if (isBlank$1(_symbolIterator$1)) {
-        if (isPresent$1(globalScope$1.Symbol) && isPresent$1(Symbol.iterator)) {
-            _symbolIterator$1 = Symbol.iterator;
-        }
-        else {
-            // es6-shim specific logic
-            var keys = Object.getOwnPropertyNames(Map.prototype);
-            for (var i = 0; i < keys.length; ++i) {
-                var key = keys[i];
-                if (key !== 'entries' && key !== 'size' &&
-                    Map.prototype[key] === Map.prototype['entries']) {
-                    _symbolIterator$1 = key;
-                }
-            }
-        }
-    }
-    return _symbolIterator$1;
-}
-function evalExpression$1(sourceUrl, expr, declarations, vars) {
-    var fnBody = declarations + "\nreturn " + expr + "\n//# sourceURL=" + sourceUrl;
-    var fnArgNames = [];
-    var fnArgValues = [];
-    for (var argName in vars) {
-        fnArgNames.push(argName);
-        fnArgValues.push(vars[argName]);
-    }
-    return new (Function.bind.apply(Function, [void 0].concat(fnArgNames.concat(fnBody))))().apply(void 0, fnArgValues);
-}
-function isPrimitive$1(obj) {
-    return !isJsObject$1(obj);
-}
-
-
-function escapeRegExp$1(s) {
-    return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
-}
-
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
 /**
  * A segment of text within the template.
  */
@@ -11327,7 +10931,7 @@ var BoundEventAst = (function () {
     };
     Object.defineProperty(BoundEventAst.prototype, "fullName", {
         get: function () {
-            if (isPresent$1(this.target)) {
+            if (this.target) {
                 return this.target + ":" + this.name;
             }
             else {
@@ -11376,7 +10980,7 @@ var VariableAst = (function () {
  * An element declaration in a template.
  */
 var ElementAst = (function () {
-    function ElementAst(name, attrs, inputs, outputs, references, directives, providers, hasViewContainer, children, ngContentIndex, sourceSpan) {
+    function ElementAst(name, attrs, inputs, outputs, references, directives, providers, hasViewContainer, children, ngContentIndex, sourceSpan, endSourceSpan) {
         this.name = name;
         this.attrs = attrs;
         this.inputs = inputs;
@@ -11388,6 +10992,7 @@ var ElementAst = (function () {
         this.children = children;
         this.ngContentIndex = ngContentIndex;
         this.sourceSpan = sourceSpan;
+        this.endSourceSpan = endSourceSpan;
     }
     ElementAst.prototype.visit = function (visitor, context) {
         return visitor.visitElement(this, context);
@@ -11519,13 +11124,199 @@ var PropertyBindingType;
 function templateVisitAll(visitor, asts, context) {
     if (context === void 0) { context = null; }
     var result = [];
+    var visit = visitor.visit ?
+        function (ast) { return visitor.visit(ast, context) || ast.visit(visitor, context); } :
+        function (ast) { return ast.visit(visitor, context); };
     asts.forEach(function (ast) {
-        var astResult = ast.visit(visitor, context);
-        if (isPresent$1(astResult)) {
+        var astResult = visit(ast);
+        if (astResult) {
             result.push(astResult);
         }
     });
     return result;
+}
+
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+var globalScope$1;
+if (typeof window === 'undefined') {
+    if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope) {
+        // TODO: Replace any with WorkerGlobalScope from lib.webworker.d.ts #3492
+        globalScope$1 = self;
+    }
+    else {
+        globalScope$1 = global$1;
+    }
+}
+else {
+    globalScope$1 = window;
+}
+
+// Need to declare a new variable for global here since TypeScript
+// exports the original value of the symbol.
+var _global$1 = globalScope$1;
+
+// TODO: remove calls to assert in production environment
+// Note: Can't just export this and import in in other files
+// as `assert` is a reserved keyword in Dart
+_global$1.assert = function assert(condition) {
+    // TODO: to be fixed properly via #2830, noop for now
+};
+function isPresent$1(obj) {
+    return obj !== undefined && obj !== null;
+}
+function isBlank$1(obj) {
+    return obj === undefined || obj === null;
+}
+
+
+function isString$1(obj) {
+    return typeof obj === 'string';
+}
+
+
+function isStringMap$1(obj) {
+    return typeof obj === 'object' && obj !== null;
+}
+var STRING_MAP_PROTO$1 = Object.getPrototypeOf({});
+function isStrictStringMap$1(obj) {
+    return isStringMap$1(obj) && Object.getPrototypeOf(obj) === STRING_MAP_PROTO$1;
+}
+function isArray$3(obj) {
+    return Array.isArray(obj);
+}
+
+
+function stringify$1(token) {
+    if (typeof token === 'string') {
+        return token;
+    }
+    if (token === undefined || token === null) {
+        return '' + token;
+    }
+    if (token.overriddenName) {
+        return token.overriddenName;
+    }
+    if (token.name) {
+        return token.name;
+    }
+    var res = token.toString();
+    var newLineIndex = res.indexOf('\n');
+    return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
+}
+var StringJoiner$1 = (function () {
+    function StringJoiner(parts) {
+        if (parts === void 0) { parts = []; }
+        this.parts = parts;
+    }
+    StringJoiner.prototype.add = function (part) { this.parts.push(part); };
+    StringJoiner.prototype.toString = function () { return this.parts.join(''); };
+    return StringJoiner;
+}());
+var NumberWrapper$1 = (function () {
+    function NumberWrapper() {
+    }
+    NumberWrapper.toFixed = function (n, fractionDigits) { return n.toFixed(fractionDigits); };
+    NumberWrapper.equal = function (a, b) { return a === b; };
+    NumberWrapper.parseIntAutoRadix = function (text) {
+        var result = parseInt(text);
+        if (isNaN(result)) {
+            throw new Error('Invalid integer literal when parsing ' + text);
+        }
+        return result;
+    };
+    NumberWrapper.parseInt = function (text, radix) {
+        if (radix == 10) {
+            if (/^(\-|\+)?[0-9]+$/.test(text)) {
+                return parseInt(text, radix);
+            }
+        }
+        else if (radix == 16) {
+            if (/^(\-|\+)?[0-9ABCDEFabcdef]+$/.test(text)) {
+                return parseInt(text, radix);
+            }
+        }
+        else {
+            var result = parseInt(text, radix);
+            if (!isNaN(result)) {
+                return result;
+            }
+        }
+        throw new Error('Invalid integer literal when parsing ' + text + ' in base ' + radix);
+    };
+    Object.defineProperty(NumberWrapper, "NaN", {
+        get: function () { return NaN; },
+        enumerable: true,
+        configurable: true
+    });
+    NumberWrapper.isNumeric = function (value) { return !isNaN(value - parseFloat(value)); };
+    NumberWrapper.isNaN = function (value) { return isNaN(value); };
+    NumberWrapper.isInteger = function (value) { return Number.isInteger(value); };
+    return NumberWrapper;
+}());
+
+
+// JS has NaN !== NaN
+
+// JS considers NaN is the same as NaN for map Key (while NaN !== NaN otherwise)
+// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+
+function normalizeBlank$1(obj) {
+    return isBlank$1(obj) ? null : obj;
+}
+function normalizeBool$1(obj) {
+    return isBlank$1(obj) ? false : obj;
+}
+function isJsObject$1(o) {
+    return o !== null && (typeof o === 'function' || typeof o === 'object');
+}
+
+
+// Can't be all uppercase as our transpiler would think it is a special directive...
+
+
+var _symbolIterator$1 = null;
+function getSymbolIterator$1() {
+    if (isBlank$1(_symbolIterator$1)) {
+        if (isPresent$1(globalScope$1.Symbol) && isPresent$1(Symbol.iterator)) {
+            _symbolIterator$1 = Symbol.iterator;
+        }
+        else {
+            // es6-shim specific logic
+            var keys = Object.getOwnPropertyNames(Map.prototype);
+            for (var i = 0; i < keys.length; ++i) {
+                var key = keys[i];
+                if (key !== 'entries' && key !== 'size' &&
+                    Map.prototype[key] === Map.prototype['entries']) {
+                    _symbolIterator$1 = key;
+                }
+            }
+        }
+    }
+    return _symbolIterator$1;
+}
+function evalExpression$1(sourceUrl, expr, declarations, vars) {
+    var fnBody = declarations + "\nreturn " + expr + "\n//# sourceURL=" + sourceUrl;
+    var fnArgNames = [];
+    var fnArgValues = [];
+    for (var argName in vars) {
+        fnArgNames.push(argName);
+        fnArgValues.push(vars[argName]);
+    }
+    return new (Function.bind.apply(Function, [void 0].concat(fnArgNames.concat(fnBody))))().apply(void 0, fnArgValues);
+}
+function isPrimitive$1(obj) {
+    return !isJsObject$1(obj);
+}
+
+
+function escapeRegExp$1(s) {
+    return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 }
 
 /**
@@ -12734,7 +12525,7 @@ var WriteVarExpr = (function (_super) {
     __extends$23(WriteVarExpr, _super);
     function WriteVarExpr(name, value, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, isPresent$1(type) ? type : value.type);
+        _super.call(this, type || value.type);
         this.name = name;
         this.value = value;
     }
@@ -12752,7 +12543,7 @@ var WriteKeyExpr = (function (_super) {
     __extends$23(WriteKeyExpr, _super);
     function WriteKeyExpr(receiver, index, value, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, isPresent$1(type) ? type : value.type);
+        _super.call(this, type || value.type);
         this.receiver = receiver;
         this.index = index;
         this.value = value;
@@ -12766,7 +12557,7 @@ var WritePropExpr = (function (_super) {
     __extends$23(WritePropExpr, _super);
     function WritePropExpr(receiver, name, value, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, isPresent$1(type) ? type : value.type);
+        _super.call(this, type || value.type);
         this.receiver = receiver;
         this.name = name;
         this.value = value;
@@ -12859,7 +12650,7 @@ var ConditionalExpr = (function (_super) {
     function ConditionalExpr(condition, trueCase, falseCase, type) {
         if (falseCase === void 0) { falseCase = null; }
         if (type === void 0) { type = null; }
-        _super.call(this, isPresent$1(type) ? type : trueCase.type);
+        _super.call(this, type || trueCase.type);
         this.condition = condition;
         this.falseCase = falseCase;
         this.trueCase = trueCase;
@@ -12920,7 +12711,7 @@ var BinaryOperatorExpr = (function (_super) {
     __extends$23(BinaryOperatorExpr, _super);
     function BinaryOperatorExpr(operator, lhs, rhs, type) {
         if (type === void 0) { type = null; }
-        _super.call(this, isPresent$1(type) ? type : lhs.type);
+        _super.call(this, type || lhs.type);
         this.operator = operator;
         this.rhs = rhs;
         this.lhs = lhs;
@@ -13020,7 +12811,7 @@ var DeclareVarStmt = (function (_super) {
         _super.call(this, modifiers);
         this.name = name;
         this.value = value;
-        this.type = isPresent$1(type) ? type : value.type;
+        this.type = type || value.type;
     }
     DeclareVarStmt.prototype.visitStatement = function (visitor, context) {
         return visitor.visitDeclareVarStmt(this, context);
@@ -13189,7 +12980,7 @@ var ExpressionTransformer = (function () {
         return new WritePropExpr(expr.receiver.visitExpression(this, context), expr.name, expr.value.visitExpression(this, context));
     };
     ExpressionTransformer.prototype.visitInvokeMethodExpr = function (ast, context) {
-        var method = isPresent$1(ast.builtin) ? ast.builtin : ast.name;
+        var method = ast.builtin || ast.name;
         return new InvokeMethodExpr(ast.receiver.visitExpression(this, context), method, this.visitAllExpressions(ast.args, context), ast.type);
     };
     ExpressionTransformer.prototype.visitInvokeFunctionExpr = function (ast, context) {
@@ -13227,7 +13018,8 @@ var ExpressionTransformer = (function () {
     };
     ExpressionTransformer.prototype.visitLiteralMapExpr = function (ast, context) {
         var _this = this;
-        return new LiteralMapExpr(ast.entries.map(function (entry) { return [entry[0], entry[1].visitExpression(_this, context)]; }));
+        var entries = ast.entries.map(function (entry) { return [entry[0], entry[1].visitExpression(_this, context),]; });
+        return new LiteralMapExpr(entries);
     };
     ExpressionTransformer.prototype.visitAllExpressions = function (exprs, context) {
         var _this = this;
@@ -13462,7 +13254,13 @@ function literal(value, type) {
 var MODULE_SUFFIX = '';
 var CAMEL_CASE_REGEXP = /([A-Z])/g;
 function camelCaseToDashCase(input) {
-    return StringWrapper$1.replaceAllMapped(input, CAMEL_CASE_REGEXP, function (m) { return '-' + m[1].toLowerCase(); });
+    return input.replace(CAMEL_CASE_REGEXP, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        return '-' + m[1].toLowerCase();
+    });
 }
 function splitAtColon(input, defaultValues) {
     return _splitAt(input, ':', defaultValues);
@@ -13477,7 +13275,7 @@ function _splitAt(input, character, defaultValues) {
     return [input.slice(0, characterIndex).trim(), input.slice(characterIndex + 1).trim()];
 }
 function sanitizeIdentifier(name) {
-    return StringWrapper$1.replaceAll(name, /\W/g, '_');
+    return name.replace(/\W/g, '_');
 }
 function visitValue(value, visitor, context) {
     if (isArray$3(value)) {
@@ -13798,7 +13596,7 @@ var CompileTemplateMetadata = (function () {
         this.styleUrls = _normalizeArray(styleUrls);
         this.externalStylesheets = _normalizeArray(externalStylesheets);
         this.animations = isPresent$1(animations) ? ListWrapper$1.flatten(animations) : [];
-        this.ngContentSelectors = isPresent$1(ngContentSelectors) ? ngContentSelectors : [];
+        this.ngContentSelectors = ngContentSelectors || [];
         if (isPresent$1(interpolation) && interpolation.length != 2) {
             throw new Error("'interpolation' should have a start and an end symbol.");
         }
@@ -13989,7 +13787,7 @@ function removeIdentifierDuplicates(items) {
     return MapWrapper$1.values(map);
 }
 function _normalizeArray(obj) {
-    return isPresent$1(obj) ? obj : [];
+    return obj || [];
 }
 function isStaticSymbol(value) {
     return isStringMap$1(value) && isPresent$1(value['name']) && isPresent$1(value['filePath']);
@@ -14656,7 +14454,7 @@ var Token = (function () {
     return Token;
 }());
 function newCharacterToken(index, code) {
-    return new Token(index, TokenType.Character, code, StringWrapper$1.fromCharCode(code));
+    return new Token(index, TokenType.Character, code, String.fromCharCode(code));
 }
 function newIdentifierToken(index, text) {
     return new Token(index, TokenType.Identifier, 0, text);
@@ -14686,8 +14484,7 @@ var _Scanner = (function () {
         this.advance();
     }
     _Scanner.prototype.advance = function () {
-        this.peek =
-            ++this.index >= this.length ? $EOF : StringWrapper$1.charCodeAt(this.input, this.index);
+        this.peek = ++this.index >= this.length ? $EOF : this.input.charCodeAt(this.index);
     };
     _Scanner.prototype.scanToken = function () {
         var input = this.input, length = this.length, peek = this.peek, index = this.index;
@@ -14698,7 +14495,7 @@ var _Scanner = (function () {
                 break;
             }
             else {
-                peek = StringWrapper$1.charCodeAt(input, index);
+                peek = input.charCodeAt(index);
             }
         }
         this.peek = peek;
@@ -14737,15 +14534,15 @@ var _Scanner = (function () {
             case $SLASH:
             case $PERCENT:
             case $CARET:
-                return this.scanOperator(start, StringWrapper$1.fromCharCode(peek));
+                return this.scanOperator(start, String.fromCharCode(peek));
             case $QUESTION:
                 return this.scanComplexOperator(start, '?', $PERIOD, '.');
             case $LT:
             case $GT:
-                return this.scanComplexOperator(start, StringWrapper$1.fromCharCode(peek), $EQ, '=');
+                return this.scanComplexOperator(start, String.fromCharCode(peek), $EQ, '=');
             case $BANG:
             case $EQ:
-                return this.scanComplexOperator(start, StringWrapper$1.fromCharCode(peek), $EQ, '=', $EQ, '=');
+                return this.scanComplexOperator(start, String.fromCharCode(peek), $EQ, '=', $EQ, '=');
             case $AMPERSAND:
                 return this.scanComplexOperator(start, '&', $AMPERSAND, '&');
             case $BAR:
@@ -14756,7 +14553,7 @@ var _Scanner = (function () {
                 return this.scanToken();
         }
         this.advance();
-        return this.error("Unexpected character [" + StringWrapper$1.fromCharCode(peek) + "]", 0);
+        return this.error("Unexpected character [" + String.fromCharCode(peek) + "]", 0);
     };
     _Scanner.prototype.scanCharacter = function (start, code) {
         this.advance();
@@ -14856,7 +14653,7 @@ var _Scanner = (function () {
                     unescapedCode = unescape(this.peek);
                     this.advance();
                 }
-                buffer.add(StringWrapper$1.fromCharCode(unescapedCode));
+                buffer.add(String.fromCharCode(unescapedCode));
                 marker = this.index;
             }
             else if (this.peek == $EOF) {
@@ -14938,9 +14735,10 @@ function unescape(code) {
  * found in the LICENSE file at https://angular.io/license
  */
 var SplitInterpolation = (function () {
-    function SplitInterpolation(strings, expressions) {
+    function SplitInterpolation(strings, expressions, offsets) {
         this.strings = strings;
         this.expressions = expressions;
+        this.offsets = offsets;
     }
     return SplitInterpolation;
 }());
@@ -14964,8 +14762,10 @@ var Parser = (function () {
     Parser.prototype.parseAction = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
         this._checkNoInterpolation(input, location, interpolationConfig);
+        var sourceToLex = this._stripComments(input);
         var tokens = this._lexer.tokenize(this._stripComments(input));
-        var ast = new _ParseAST(input, location, tokens, true, this.errors).parseChain();
+        var ast = new _ParseAST(input, location, tokens, sourceToLex.length, true, this.errors, input.length - sourceToLex.length)
+            .parseChain();
         return new ASTWithSource(ast, input, location, this.errors);
     };
     Parser.prototype.parseBinding = function (input, location, interpolationConfig) {
@@ -14992,8 +14792,10 @@ var Parser = (function () {
             return quote;
         }
         this._checkNoInterpolation(input, location, interpolationConfig);
-        var tokens = this._lexer.tokenize(this._stripComments(input));
-        return new _ParseAST(input, location, tokens, false, this.errors).parseChain();
+        var sourceToLex = this._stripComments(input);
+        var tokens = this._lexer.tokenize(sourceToLex);
+        return new _ParseAST(input, location, tokens, sourceToLex.length, false, this.errors, input.length - sourceToLex.length)
+            .parseChain();
     };
     Parser.prototype._parseQuote = function (input, location) {
         if (isBlank$1(input))
@@ -15009,7 +14811,8 @@ var Parser = (function () {
     };
     Parser.prototype.parseTemplateBindings = function (input, location) {
         var tokens = this._lexer.tokenize(input);
-        return new _ParseAST(input, location, tokens, false, this.errors).parseTemplateBindings();
+        return new _ParseAST(input, location, tokens, input.length, false, this.errors, 0)
+            .parseTemplateBindings();
     };
     Parser.prototype.parseInterpolation = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
@@ -15018,8 +14821,11 @@ var Parser = (function () {
             return null;
         var expressions = [];
         for (var i = 0; i < split.expressions.length; ++i) {
+            var expressionText = split.expressions[i];
+            var sourceToLex = this._stripComments(expressionText);
             var tokens = this._lexer.tokenize(this._stripComments(split.expressions[i]));
-            var ast = new _ParseAST(input, location, tokens, false, this.errors).parseChain();
+            var ast = new _ParseAST(input, location, tokens, sourceToLex.length, false, this.errors, split.offsets[i] + (expressionText.length - sourceToLex.length))
+                .parseChain();
             expressions.push(ast);
         }
         return new ASTWithSource(new Interpolation(new ParseSpan(0, isBlank$1(input) ? 0 : input.length), split.strings, expressions), input, location, this.errors);
@@ -15027,26 +14833,32 @@ var Parser = (function () {
     Parser.prototype.splitInterpolation = function (input, location, interpolationConfig) {
         if (interpolationConfig === void 0) { interpolationConfig = DEFAULT_INTERPOLATION_CONFIG; }
         var regexp = _createInterpolateRegExp(interpolationConfig);
-        var parts = StringWrapper$1.split(input, regexp);
+        var parts = input.split(regexp);
         if (parts.length <= 1) {
             return null;
         }
         var strings = [];
         var expressions = [];
+        var offsets = [];
+        var offset = 0;
         for (var i = 0; i < parts.length; i++) {
             var part = parts[i];
             if (i % 2 === 0) {
                 // fixed string
                 strings.push(part);
+                offset += part.length;
             }
             else if (part.trim().length > 0) {
+                offset += interpolationConfig.start.length;
                 expressions.push(part);
+                offsets.push(offset);
+                offset += part.length + interpolationConfig.end.length;
             }
             else {
                 this._reportError('Blank expressions are not allowed in interpolated strings', input, "at column " + this._findInterpolationErrorColumn(parts, i, interpolationConfig) + " in", location);
             }
         }
-        return new SplitInterpolation(strings, expressions);
+        return new SplitInterpolation(strings, expressions, offsets);
     };
     Parser.prototype.wrapLiteralPrimitive = function (input, location) {
         return new ASTWithSource(new LiteralPrimitive(new ParseSpan(0, isBlank$1(input) ? 0 : input.length), input), input, location, this.errors);
@@ -15058,8 +14870,8 @@ var Parser = (function () {
     Parser.prototype._commentStart = function (input) {
         var outerQuote = null;
         for (var i = 0; i < input.length - 1; i++) {
-            var char = StringWrapper$1.charCodeAt(input, i);
-            var nextChar = StringWrapper$1.charCodeAt(input, i + 1);
+            var char = input.charCodeAt(i);
+            var nextChar = input.charCodeAt(i + 1);
             if (char === $SLASH && nextChar == $SLASH && isBlank$1(outerQuote))
                 return i;
             if (outerQuote === char) {
@@ -15073,7 +14885,7 @@ var Parser = (function () {
     };
     Parser.prototype._checkNoInterpolation = function (input, location, interpolationConfig) {
         var regexp = _createInterpolateRegExp(interpolationConfig);
-        var parts = StringWrapper$1.split(input, regexp);
+        var parts = input.split(regexp);
         if (parts.length > 1) {
             this._reportError("Got interpolation (" + interpolationConfig.start + interpolationConfig.end + ") where expression was expected", input, "at column " + this._findInterpolationErrorColumn(parts, 1, interpolationConfig) + " in", location);
         }
@@ -15097,12 +14909,14 @@ var Parser = (function () {
     return Parser;
 }());
 var _ParseAST = (function () {
-    function _ParseAST(input, location, tokens, parseAction, errors) {
+    function _ParseAST(input, location, tokens, inputLength, parseAction, errors, offset) {
         this.input = input;
         this.location = location;
         this.tokens = tokens;
+        this.inputLength = inputLength;
         this.parseAction = parseAction;
         this.errors = errors;
+        this.offset = offset;
         this.rparensExpected = 0;
         this.rbracketsExpected = 0;
         this.rbracesExpected = 0;
@@ -15119,7 +14933,8 @@ var _ParseAST = (function () {
     });
     Object.defineProperty(_ParseAST.prototype, "inputIndex", {
         get: function () {
-            return (this.index < this.tokens.length) ? this.next.index : this.input.length;
+            return (this.index < this.tokens.length) ? this.next.index + this.offset :
+                this.inputLength + this.offset;
         },
         enumerable: true,
         configurable: true
@@ -15139,7 +14954,7 @@ var _ParseAST = (function () {
     _ParseAST.prototype.expectCharacter = function (code) {
         if (this.optionalCharacter(code))
             return;
-        this.error("Missing expected " + StringWrapper$1.fromCharCode(code));
+        this.error("Missing expected " + String.fromCharCode(code));
     };
     _ParseAST.prototype.optionalOperator = function (op) {
         if (this.next.isOperator(op)) {
@@ -15208,7 +15023,7 @@ var _ParseAST = (function () {
                 while (this.optionalCharacter($COLON)) {
                     args.push(this.parseExpression());
                 }
-                result = new BindingPipe(this.span(result.span.start), result, name, args);
+                result = new BindingPipe(this.span(result.span.start - this.offset), result, name, args);
             } while (this.optionalOperator('|'));
         }
         return result;
@@ -15772,10 +15587,11 @@ var ExpansionCase = (function () {
     return ExpansionCase;
 }());
 var Attribute$1 = (function () {
-    function Attribute(name, value, sourceSpan) {
+    function Attribute(name, value, sourceSpan, valueSpan) {
         this.name = name;
         this.value = value;
         this.sourceSpan = sourceSpan;
+        this.valueSpan = valueSpan;
     }
     Attribute.prototype.visit = function (visitor, context) { return visitor.visitAttribute(this, context); };
     return Attribute;
@@ -15803,8 +15619,11 @@ var Comment = (function () {
 function visitAll(visitor, nodes, context) {
     if (context === void 0) { context = null; }
     var result = [];
+    var visit = visitor.visit ?
+        function (ast) { return visitor.visit(ast, context) || ast.visit(visitor, context); } :
+        function (ast) { return ast.visit(visitor, context); };
     nodes.forEach(function (ast) {
-        var astResult = ast.visit(visitor, context);
+        var astResult = visit(ast);
         if (astResult) {
             result.push(astResult);
         }
@@ -16754,12 +16573,14 @@ var _TreeBuilder = (function () {
         var fullName = mergeNsAndName(attrName.parts[0], attrName.parts[1]);
         var end = attrName.sourceSpan.end;
         var value = '';
+        var valueSpan;
         if (this._peek.type === TokenType$1.ATTR_VALUE) {
             var valueToken = this._advance();
             value = valueToken.parts[0];
             end = valueToken.sourceSpan.end;
+            valueSpan = valueToken.sourceSpan;
         }
-        return new Attribute$1(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end));
+        return new Attribute$1(fullName, value, new ParseSourceSpan(attrName.sourceSpan.start, end), valueSpan);
     };
     _TreeBuilder.prototype._getParentElement = function () {
         return this._elementStack.length > 0 ? ListWrapper$1.last(this._elementStack) : null;
@@ -19056,7 +18877,7 @@ var ProviderElementContext = (function () {
     });
     ProviderElementContext.prototype._addQueryReadsTo = function (token, queryReadTokens) {
         this._getQueriesFor(token).forEach(function (query) {
-            var queryReadToken = isPresent$1(query.read) ? query.read : token;
+            var queryReadToken = query.read || token;
             if (isBlank$1(queryReadTokens.get(queryReadToken.reference))) {
                 queryReadTokens.set(queryReadToken.reference, true);
             }
@@ -19118,12 +18939,12 @@ var ProviderElementContext = (function () {
                 }
             }
             else if (isPresent$1(provider.useFactory)) {
-                var deps = isPresent$1(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                var deps = provider.deps || provider.useFactory.diDeps;
                 transformedDeps =
                     deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep, eager); });
             }
             else if (isPresent$1(provider.useClass)) {
-                var deps = isPresent$1(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                var deps = provider.deps || provider.useClass.diDeps;
                 transformedDeps =
                     deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep, eager); });
             }
@@ -19273,12 +19094,12 @@ var NgModuleProviderAnalyzer = (function () {
                 }
             }
             else if (isPresent$1(provider.useFactory)) {
-                var deps = isPresent$1(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                var deps = provider.deps || provider.useFactory.diDeps;
                 transformedDeps =
                     deps.map(function (dep) { return _this._getDependency(dep, eager, resolvedProvider.sourceSpan); });
             }
             else if (isPresent$1(provider.useClass)) {
-                var deps = isPresent$1(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                var deps = provider.deps || provider.useClass.diDeps;
                 transformedDeps =
                     deps.map(function (dep) { return _this._getDependency(dep, eager, resolvedProvider.sourceSpan); });
             }
@@ -19476,8 +19297,12 @@ function isStyleUrlResolvable(url) {
  */
 function extractStyleUrls(resolver, baseUrl, cssText) {
     var foundUrls = [];
-    var modifiedCssText = StringWrapper$1.replaceAllMapped(cssText, _cssImportRe, function (m) {
-        var url = isPresent$1(m[1]) ? m[1] : m[2];
+    var modifiedCssText = cssText.replace(_cssImportRe, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        var url = m[1] || m[2];
         if (!isStyleUrlResolvable(url)) {
             // Do not attempt to resolve non-package absolute URLs with URI scheme
             return m[0];
@@ -19662,19 +19487,11 @@ var TemplateParser = (function () {
         return result.templateAst;
     };
     TemplateParser.prototype.tryParse = function (component, template, directives, pipes, schemas, templateUrl) {
-        var interpolationConfig;
-        if (component.template) {
-            interpolationConfig = InterpolationConfig.fromArray(component.template.interpolation);
-        }
-        var htmlAstWithErrors = this._htmlParser.parse(template, templateUrl, true, interpolationConfig);
-        var errors = htmlAstWithErrors.errors;
+        return this.tryParseHtml(this.expandHtml(this._htmlParser.parse(template, templateUrl, true, this.getInterpolationConfig(component))), component, template, directives, pipes, schemas, templateUrl);
+    };
+    TemplateParser.prototype.tryParseHtml = function (htmlAstWithErrors, component, template, directives, pipes, schemas, templateUrl) {
         var result;
-        if (errors.length == 0) {
-            // Transform ICU messages to angular directives
-            var expandedHtmlAst = expandNodes(htmlAstWithErrors.rootNodes);
-            errors.push.apply(errors, expandedHtmlAst.errors);
-            htmlAstWithErrors = new ParseTreeResult(expandedHtmlAst.nodes, errors);
-        }
+        var errors = htmlAstWithErrors.errors;
         if (htmlAstWithErrors.rootNodes.length > 0) {
             var uniqDirectives = removeIdentifierDuplicates(directives);
             var uniqPipes = removeIdentifierDuplicates(pipes);
@@ -19694,6 +19511,22 @@ var TemplateParser = (function () {
             this.transforms.forEach(function (transform) { result = templateVisitAll(transform, result); });
         }
         return new TemplateParseResult(result, errors);
+    };
+    TemplateParser.prototype.expandHtml = function (htmlAstWithErrors, forced) {
+        if (forced === void 0) { forced = false; }
+        var errors = htmlAstWithErrors.errors;
+        if (errors.length == 0 || forced) {
+            // Transform ICU messages to angular directives
+            var expandedHtmlAst = expandNodes(htmlAstWithErrors.rootNodes);
+            errors.push.apply(errors, expandedHtmlAst.errors);
+            htmlAstWithErrors = new ParseTreeResult(expandedHtmlAst.nodes, errors);
+        }
+        return htmlAstWithErrors;
+    };
+    TemplateParser.prototype.getInterpolationConfig = function (component) {
+        if (component.template) {
+            return InterpolationConfig.fromArray(component.template.interpolation);
+        }
     };
     /** @internal */
     TemplateParser.prototype._assertNoReferenceDuplicationOnTemplate = function (result, errors) {
@@ -19919,8 +19752,8 @@ var TemplateParseVisitor = (function () {
         var ngContentIndex = parent.findNgContentIndex(projectionSelector);
         var parsedElement;
         if (preparsedElement.type === PreparsedElementType.NG_CONTENT) {
-            if (isPresent$1(element.children) && element.children.length > 0) {
-                this._reportError("<ng-content> element cannot have content. <ng-content> must be immediately followed by </ng-content>", element.sourceSpan);
+            if (element.children && !element.children.every(_isEmptyTextNode)) {
+                this._reportError("<ng-content> element cannot have content.", element.sourceSpan);
             }
             parsedElement = new NgContentAst(this.ngContentCount++, hasInlineTemplates ? null : ngContentIndex, element.sourceSpan);
         }
@@ -19933,7 +19766,7 @@ var TemplateParseVisitor = (function () {
             this._assertElementExists(matchElement, element);
             this._assertOnlyOneComponent(directiveAsts, element.sourceSpan);
             var ngContentIndex_1 = hasInlineTemplates ? null : parent.findNgContentIndex(projectionSelector);
-            parsedElement = new ElementAst(nodeName, attrs, elementProps, events, references, providerContext.transformedDirectiveAsts, providerContext.transformProviders, providerContext.transformedHasViewContainer, children, hasInlineTemplates ? null : ngContentIndex_1, element.sourceSpan);
+            parsedElement = new ElementAst(nodeName, attrs, elementProps, events, references, providerContext.transformedDirectiveAsts, providerContext.transformProviders, providerContext.transformedHasViewContainer, children, hasInlineTemplates ? null : ngContentIndex_1, element.sourceSpan, element.endSourceSpan);
             this._findComponentDirectives(directiveAsts)
                 .forEach(function (componentDirectiveAst) { return _this._validateElementAnimationInputOutputs(componentDirectiveAst.hostProperties, componentDirectiveAst.hostEvents, componentDirectiveAst.directive.template); });
             var componentTemplate = providerContext.viewContext.component.template;
@@ -20427,7 +20260,7 @@ var NonBindableVisitor = (function () {
         var selector = createElementCssSelector(ast.name, attrNameAndValues);
         var ngContentIndex = parent.findNgContentIndex(selector);
         var children = visitAll(this, ast.children, EMPTY_ELEMENT_CONTEXT);
-        return new ElementAst(ast.name, visitAll(this, ast.attrs), [], [], [], [], [], false, children, ngContentIndex, ast.sourceSpan);
+        return new ElementAst(ast.name, visitAll(this, ast.attrs), [], [], [], [], [], false, children, ngContentIndex, ast.sourceSpan, ast.endSourceSpan);
     };
     NonBindableVisitor.prototype.visitComment = function (comment, context) { return null; };
     NonBindableVisitor.prototype.visitAttribute = function (attribute, context) {
@@ -20531,6 +20364,9 @@ var PipeCollector = (function (_super) {
 }(RecursiveAstVisitor));
 function _isAnimationLabel(name) {
     return name[0] == '@';
+}
+function _isEmptyTextNode(node) {
+    return node instanceof Text && node.value.trim().length == 0;
 }
 
 /**
@@ -20815,7 +20651,8 @@ var _AnimationBuilder = (function () {
             context.isExpectingFirstStyleStep = false;
         }
         ast.styles.forEach(function (entry) {
-            stylesArr.push(literalMap(Object.keys(entry).map(function (key) { return [key, literal(entry[key])]; })));
+            var entries = Object.keys(entry).map(function (key) { return [key, literal(entry[key])]; });
+            stylesArr.push(literalMap(entries));
         });
         return importExpr(resolveIdentifier(Identifiers.AnimationStyles)).instantiate([
             importExpr(resolveIdentifier(Identifiers.collectAndResolveStyles)).callFn([
@@ -21212,11 +21049,7 @@ function _parseAnimationStateTransition(transitionStateMetadata, stateStyles, er
     var styles = new StylesCollection();
     var transitionExprs = [];
     var transitionStates = transitionStateMetadata.stateChangeExpr.split(/\s*,\s*/);
-    transitionStates.forEach(function (expr) {
-        _parseAnimationTransitionExpr(expr, errors).forEach(function (transExpr) {
-            transitionExprs.push(transExpr);
-        });
-    });
+    transitionStates.forEach(function (expr) { transitionExprs.push.apply(transitionExprs, _parseAnimationTransitionExpr(expr, errors)); });
     var entry = _normalizeAnimationEntry(transitionStateMetadata.steps);
     var animation = _normalizeStyleSteps(entry, stateStyles, errors);
     var animationAst = _parseTransitionAnimation(animation, 0, styles, stateStyles, errors);
@@ -21228,8 +21061,22 @@ function _parseAnimationStateTransition(transitionStateMetadata, stateStyles, er
         new AnimationSequenceAst([animationAst]);
     return new AnimationStateTransitionAst(transitionExprs, stepsAst);
 }
+function _parseAnimationAlias(alias, errors) {
+    switch (alias) {
+        case ':enter':
+            return 'void => *';
+        case ':leave':
+            return '* => void';
+        default:
+            errors.push(new AnimationParseError("the transition alias value \"" + alias + "\" is not supported"));
+            return '* => *';
+    }
+}
 function _parseAnimationTransitionExpr(eventStr, errors) {
     var expressions = [];
+    if (eventStr[0] == ':') {
+        eventStr = _parseAnimationAlias(eventStr, errors);
+    }
     var match = eventStr.match(/^(\*|[-\w]+)\s*(<?[=-]>)\s*(\*|[-\w]+)$/);
     if (!isPresent$1(match) || match.length < 4) {
         errors.push(new AnimationParseError("the provided " + eventStr + " is not of a supported format"));
@@ -21402,7 +21249,6 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
     if (doSortKeyframes) {
         ListWrapper$1.sort(rawKeyframes, function (a, b) { return a[0] <= b[0] ? -1 : 1; });
     }
-    var i;
     var firstKeyframe = rawKeyframes[0];
     if (firstKeyframe[0] != _INITIAL_KEYFRAME) {
         ListWrapper$1.insert(rawKeyframes, 0, firstKeyframe = [_INITIAL_KEYFRAME, {}]);
@@ -21415,7 +21261,7 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
         limit++;
     }
     var lastKeyframeStyles = lastKeyframe[1];
-    for (i = 1; i <= limit; i++) {
+    for (var i = 1; i <= limit; i++) {
         var entry = rawKeyframes[i];
         var styles = entry[1];
         Object.keys(styles).forEach(function (prop) {
@@ -21424,7 +21270,7 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
             }
         });
     }
-    var _loop_1 = function() {
+    var _loop_1 = function(i) {
         var entry = rawKeyframes[i];
         var styles = entry[1];
         Object.keys(styles).forEach(function (prop) {
@@ -21433,8 +21279,8 @@ function _parseAnimationKeyframes(keyframeSequence, currentTime, collectedStyles
             }
         });
     };
-    for (i = limit - 1; i >= 0; i--) {
-        _loop_1();
+    for (var i = limit - 1; i >= 0; i--) {
+        _loop_1(i);
     }
     return rawKeyframes.map(function (entry) { return new AnimationKeyframeAst(entry[0], new AnimationStylesAst([entry[1]])); });
 }
@@ -21687,7 +21533,7 @@ var CompileMethod = (function () {
     };
     CompileMethod.prototype.resetDebugInfoExpr = function (nodeIndex, templateAst) {
         var res = this._updateDebugContext(new _DebugState(nodeIndex, templateAst));
-        return isPresent$1(res) ? res : NULL_EXPR;
+        return res || NULL_EXPR;
     };
     CompileMethod.prototype.resetDebugInfo = function (nodeIndex, templateAst) {
         this._newState = new _DebugState(nodeIndex, templateAst);
@@ -21832,7 +21678,7 @@ var CompileQuery = (function () {
     CompileQuery.prototype._isStatic = function () {
         return !this._values.values.some(function (value) { return value instanceof ViewQueryValues; });
     };
-    CompileQuery.prototype.afterChildren = function (targetStaticMethod /** TODO #9100 */, targetDynamicMethod) {
+    CompileQuery.prototype.afterChildren = function (targetStaticMethod, targetDynamicMethod) {
         var values = createQueryValues(this._values);
         var updateStmts = [this.queryList.callMethod('reset', [literalArr(values)]).toStmt()];
         if (isPresent$1(this.ownerDirectiveExpression)) {
@@ -22126,12 +21972,12 @@ var CompileElement = (function (_super) {
                     return _this._getDependency(resolvedProvider.providerType, new CompileDiDependencyMetadata({ token: provider.useExisting }));
                 }
                 else if (isPresent$1(provider.useFactory)) {
-                    var deps = isPresent$1(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+                    var deps = provider.deps || provider.useFactory.diDeps;
                     var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
                     return importExpr(provider.useFactory).callFn(depsExpr);
                 }
                 else if (isPresent$1(provider.useClass)) {
-                    var deps = isPresent$1(provider.deps) ? provider.deps : provider.useClass.diDeps;
+                    var deps = provider.deps || provider.useClass.diDeps;
                     var depsExpr = deps.map(function (dep) { return _this._getDependency(resolvedProvider.providerType, dep); });
                     return importExpr(provider.useClass)
                         .instantiate(depsExpr, importType(provider.useClass));
@@ -22363,7 +22209,7 @@ function createProviderProperty(propName, provider, providerValueExpressions, is
 var _QueryWithRead = (function () {
     function _QueryWithRead(query, match) {
         this.query = query;
-        this.read = isPresent$1(query.meta.read) ? query.meta.read : match;
+        this.read = query.meta.read || match;
     }
     return _QueryWithRead;
 }());
@@ -23051,7 +22897,7 @@ var CompileEventListener = (function () {
         this._actionResultExprs = [];
         this._method = new CompileMethod(compileElement.view);
         this._methodName =
-            "_handle_" + santitizeEventName(eventName) + "_" + compileElement.nodeIndex + "_" + listenerIndex;
+            "_handle_" + sanitizeEventName(eventName) + "_" + compileElement.nodeIndex + "_" + listenerIndex;
         this._eventParam = new FnParam(EventHandlerVars.event.name, importType(this.compileElement.view.genConfig.renderTypes.renderEvent));
     }
     CompileEventListener.getOrCreate = function (compileElement, eventTarget, eventName, eventPhase, targetEventListeners) {
@@ -23073,8 +22919,7 @@ var CompileEventListener = (function () {
             this._hasComponentHostListener = true;
         }
         this._method.resetDebugInfo(this.compileElement.nodeIndex, hostEvent);
-        var context = isPresent$1(directiveInstance) ? directiveInstance :
-            this.compileElement.view.componentContext;
+        var context = directiveInstance || this.compileElement.view.componentContext;
         var actionStmts = convertCdStatementToIr(this.compileElement.view, context, hostEvent.handler, this.compileElement.nodeIndex);
         var lastIndex = actionStmts.length - 1;
         if (lastIndex >= 0) {
@@ -23185,8 +23030,8 @@ function convertStmtIntoExpression(stmt) {
     }
     return null;
 }
-function santitizeEventName(name) {
-    return StringWrapper$1.replaceAll(name, /[^a-zA-Z_]/g, '_');
+function sanitizeEventName(name) {
+    return name.replace(/[^a-zA-Z_]/g, '_');
 }
 
 /**
@@ -23311,7 +23156,6 @@ function bindAndWriteToRenderer(boundProps, context, compileElement, isHostProp)
         view.detectChangesRenderPropertiesMethod.resetDebugInfo(compileElement.nodeIndex, boundProp);
         var fieldExpr = createBindFieldExpr(bindingIndex);
         var currValExpr = createCurrValueExpr(bindingIndex);
-        var renderMethod;
         var oldRenderValue = sanitizedValue(boundProp, fieldExpr);
         var renderValue = sanitizedValue(boundProp, currValExpr);
         var updateStmts = [];
@@ -23612,11 +23456,11 @@ var ViewBuilderVisitor = (function () {
         if (this._isRootNode(parent)) {
             // store appElement as root node only for ViewContainers
             if (this.view.viewType !== ViewType$1.COMPONENT) {
-                this.view.rootNodesOrAppElements.push(isPresent$1(vcAppEl) ? vcAppEl : node.renderNode);
+                this.view.rootNodesOrAppElements.push(vcAppEl || node.renderNode);
             }
         }
         else if (isPresent$1(parent.component) && isPresent$1(ngContentIndex)) {
-            parent.addContentNode(ngContentIndex, isPresent$1(vcAppEl) ? vcAppEl : node.renderNode);
+            parent.addContentNode(ngContentIndex, vcAppEl || node.renderNode);
         }
     };
     ViewBuilderVisitor.prototype._getParentRenderNode = function (parent) {
@@ -23855,7 +23699,7 @@ function mapToKeyValueArray(data) {
     Object.keys(data).forEach(function (name) { entryArray.push([name, data[name]]); });
     // We need to sort to get a defined output order
     // for tests and for caching generated artifacts...
-    ListWrapper$1.sort(entryArray, function (entry1, entry2) { return StringWrapper$1.compare(entry1[0], entry2[0]); });
+    ListWrapper$1.sort(entryArray);
     return entryArray;
 }
 function createViewTopLevelStmts(view, targetStatements) {
@@ -23947,7 +23791,9 @@ function createViewFactory(view, viewClass, renderCompTypeVar) {
     }
     if (view.viewIndex === 0) {
         var animationsExpr = literalMap(view.animations.map(function (entry) { return [entry.name, entry.fnExp]; }));
-        initRenderCompTypeStmts = [new IfStmt(renderCompTypeVar.identical(NULL_EXPR), [renderCompTypeVar
+        initRenderCompTypeStmts = [
+            new IfStmt(renderCompTypeVar.identical(NULL_EXPR), [
+                renderCompTypeVar
                     .set(ViewConstructorVars.viewUtils.callMethod('createRenderComponentType', [
                     view.genConfig.genDebugInfo ? literal(templateUrlInfo) : literal(''),
                     literal(view.component.template.ngContentSelectors.length),
@@ -23955,10 +23801,14 @@ function createViewFactory(view, viewClass, renderCompTypeVar) {
                     view.styles,
                     animationsExpr,
                 ]))
-                    .toStmt()])];
+                    .toStmt(),
+            ]),
+        ];
     }
-    return fn(viewFactoryArgs, initRenderCompTypeStmts.concat([new ReturnStatement(variable(viewClass.name)
-            .instantiate(viewClass.constructorMethod.params.map(function (param) { return variable(param.name); })))]), importType(resolveIdentifier(Identifiers.AppView), [getContextType(view)]))
+    return fn(viewFactoryArgs, initRenderCompTypeStmts.concat([
+        new ReturnStatement(variable(viewClass.name)
+            .instantiate(viewClass.constructorMethod.params.map(function (param) { return variable(param.name); }))),
+    ]), importType(resolveIdentifier(Identifiers.AppView), [getContextType(view)]))
         .toDeclStmt(view.viewFactory.name, [StmtModifier.Final]);
 }
 function generateCreateMethod(view) {
@@ -24111,11 +23961,26 @@ var SourceModule = (function () {
     return SourceModule;
 }());
 var NgModulesSummary = (function () {
-    function NgModulesSummary(ngModuleByComponent) {
+    function NgModulesSummary(ngModuleByComponent, ngModules) {
         this.ngModuleByComponent = ngModuleByComponent;
+        this.ngModules = ngModules;
     }
     return NgModulesSummary;
 }());
+function analyzeModules(ngModules, metadataResolver) {
+    var ngModuleByComponent = new Map();
+    var modules = [];
+    ngModules.forEach(function (ngModule) {
+        var ngModuleMeta = metadataResolver.getNgModuleMetadata(ngModule);
+        modules.push(ngModuleMeta);
+        ngModuleMeta.declaredDirectives.forEach(function (dirMeta) {
+            if (dirMeta.isComponent) {
+                ngModuleByComponent.set(dirMeta.type.reference, ngModuleMeta);
+            }
+        });
+    });
+    return new NgModulesSummary(ngModuleByComponent, modules);
+}
 
 function _resolveViewStatements(compileResult) {
     compileResult.dependencies.forEach(function (dep) {
@@ -24245,8 +24110,8 @@ var UrlResolver = (function () {
                 resolvedUrl = "asset:" + pathSegements[0] + "/lib/" + pathSegements.slice(1).join('/');
             }
             else {
-                prefix = StringWrapper$1.stripRight(prefix, '/');
-                path = StringWrapper$1.stripLeft(path, '/');
+                prefix = prefix.replace(/\/+$/, '');
+                path = path.replace(/^\/+/, '');
                 return prefix + "/" + path;
             }
         }
@@ -24794,6 +24659,13 @@ var DirectiveResolver = (function () {
                 else if (a instanceof HostBinding) {
                     var hostBinding = a;
                     if (hostBinding.hostPropertyName) {
+                        var startWith = hostBinding.hostPropertyName[0];
+                        if (startWith === '(') {
+                            throw new Error("@HostBinding can not bind to events. Use @HostListener instead.");
+                        }
+                        else if (startWith === '[') {
+                            throw new Error("@HostBinding parameter should be a property name, 'class.<name>', or 'attr.<name>'.");
+                        }
                         host[("[" + hostBinding.hostPropertyName + "]")] = propName;
                     }
                     else {
@@ -25843,12 +25715,12 @@ var _InjectorBuilder = (function () {
             result = this._getDependency(new CompileDiDependencyMetadata({ token: provider.useExisting }));
         }
         else if (isPresent$1(provider.useFactory)) {
-            var deps = isPresent$1(provider.deps) ? provider.deps : provider.useFactory.diDeps;
+            var deps = provider.deps || provider.useFactory.diDeps;
             var depsExpr = deps.map(function (dep) { return _this._getDependency(dep); });
             result = importExpr(provider.useFactory).callFn(depsExpr);
         }
         else if (isPresent$1(provider.useClass)) {
-            var deps = isPresent$1(provider.deps) ? provider.deps : provider.useClass.diDeps;
+            var deps = provider.deps || provider.useClass.diDeps;
             var depsExpr = deps.map(function (dep) { return _this._getDependency(dep); });
             result =
                 importExpr(provider.useClass).instantiate(depsExpr, importType(provider.useClass));
@@ -26277,7 +26149,7 @@ var AbstractEmitterVisitor = (function () {
         var useNewLine = ast.entries.length > 1;
         ctx.print("{", useNewLine);
         ctx.incIndent();
-        this.visitAllObjects(function (entry /** TODO #9100 */) {
+        this.visitAllObjects(function (entry) {
             ctx.print(escapeIdentifier(entry[0], _this._escapeDollarInStrings, false) + ": ");
             entry[1].visitExpression(_this, ctx);
         }, ast.entries, ctx, ',', useNewLine);
@@ -26288,7 +26160,7 @@ var AbstractEmitterVisitor = (function () {
     AbstractEmitterVisitor.prototype.visitAllExpressions = function (expressions, ctx, separator, newLine) {
         var _this = this;
         if (newLine === void 0) { newLine = false; }
-        this.visitAllObjects(function (expr /** TODO #9100 */) { return expr.visitExpression(_this, ctx); }, expressions, ctx, separator, newLine);
+        this.visitAllObjects(function (expr) { return expr.visitExpression(_this, ctx); }, expressions, ctx, separator, newLine);
     };
     AbstractEmitterVisitor.prototype.visitAllObjects = function (handler, expressions, ctx, separator, newLine) {
         if (newLine === void 0) { newLine = false; }
@@ -26313,7 +26185,11 @@ function escapeIdentifier(input, escapeDollar, alwaysQuote) {
     if (isBlank$1(input)) {
         return null;
     }
-    var body = StringWrapper$1.replaceAllMapped(input, _SINGLE_QUOTE_ESCAPE_STRING_RE, function (match /** TODO #9100 */) {
+    var body = input.replace(_SINGLE_QUOTE_ESCAPE_STRING_RE, function () {
+        var match = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            match[_i - 0] = arguments[_i];
+        }
         if (match[0] == '$') {
             return escapeDollar ? '\\$' : '$';
         }
@@ -26396,6 +26272,20 @@ var _TsEmitterVisitor = (function (_super) {
     };
     _TsEmitterVisitor.prototype.visitLiteralExpr = function (ast, ctx) {
         _super.prototype.visitLiteralExpr.call(this, ast, ctx, '(null as any)');
+    };
+    // Temporary workaround to support strictNullCheck enabled consumers of ngc emit.
+    // In SNC mode, [] have the type never[], so we cast here to any[].
+    // TODO: narrow the cast to a more explicit type, or use a pattern that does not
+    // start with [].concat. see https://github.com/angular/angular/pull/11846
+    _TsEmitterVisitor.prototype.visitLiteralArrayExpr = function (ast, ctx) {
+        if (ast.entries.length === 0) {
+            ctx.print('(');
+        }
+        var result = _super.prototype.visitLiteralArrayExpr.call(this, ast, ctx);
+        if (ast.entries.length === 0) {
+            ctx.print(' as any[])');
+        }
+        return result;
     };
     _TsEmitterVisitor.prototype.visitExternalExpr = function (ast, ctx) {
         this._visitIdentifier(ast.value, ast.typeParams, ctx);
@@ -26599,7 +26489,7 @@ var _TsEmitterVisitor = (function (_super) {
     };
     _TsEmitterVisitor.prototype._visitParams = function (params, ctx) {
         var _this = this;
-        this.visitAllObjects(function (param /** TODO #9100 */) {
+        this.visitAllObjects(function (param) {
             ctx.print(param.name);
             ctx.print(':');
             _this.visitType(param.type, ctx);
@@ -26628,7 +26518,7 @@ var _TsEmitterVisitor = (function (_super) {
         }
         if (isPresent$1(typeParams) && typeParams.length > 0) {
             ctx.print("<");
-            this.visitAllObjects(function (type /** TODO #9100 */) { return type.visitType(_this, ctx); }, typeParams, ctx, ',');
+            this.visitAllObjects(function (type) { return type.visitType(_this, ctx); }, typeParams, ctx, ',');
             ctx.print(">");
         }
     };
@@ -27115,7 +27005,7 @@ var AbstractJsEmitterVisitor = (function (_super) {
         return null;
     };
     AbstractJsEmitterVisitor.prototype._visitParams = function (params, ctx) {
-        this.visitAllObjects(function (param /** TODO #9100 */) { return ctx.print(param.name); }, params, ctx, ',');
+        this.visitAllObjects(function (param) { return ctx.print(param.name); }, params, ctx, ',');
     };
     AbstractJsEmitterVisitor.prototype.getBuiltinMethodName = function (method) {
         var name;
@@ -27561,7 +27451,8 @@ var ShadowCss = (function () {
         _polyfillHostRe.lastIndex = 0;
         if (_polyfillHostRe.test(selector)) {
             var replaceBy_1 = this.strictStyling ? "[" + hostSelector + "]" : scopeSelector;
-            return selector.replace(_polyfillHostNoCombinatorRe, function (hnc, selector) { return selector + replaceBy_1; })
+            return selector
+                .replace(_polyfillHostNoCombinatorRe, function (hnc, selector) { return selector[0] === ':' ? replaceBy_1 + selector : selector + replaceBy_1; })
                 .replace(_polyfillHostRe, replaceBy_1 + ' ');
         }
         return scopeSelector + ' ' + selector;
@@ -29021,7 +28912,6 @@ function stringify$2(token) {
     var newLineIndex = res.indexOf('\n');
     return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
 }
-
 
 var NumberWrapper$2 = (function () {
     function NumberWrapper() {
@@ -32273,74 +32163,6 @@ function stringify$3(token) {
     var newLineIndex = res.indexOf('\n');
     return newLineIndex === -1 ? res : res.substring(0, newLineIndex);
 }
-var StringWrapper$3 = (function () {
-    function StringWrapper() {
-    }
-    StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-    StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-    StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-    StringWrapper.equals = function (s, s2) { return s === s2; };
-    StringWrapper.stripLeft = function (s, charVal) {
-        if (s && s.length) {
-            var pos = 0;
-            for (var i = 0; i < s.length; i++) {
-                if (s[i] != charVal)
-                    break;
-                pos++;
-            }
-            s = s.substring(pos);
-        }
-        return s;
-    };
-    StringWrapper.stripRight = function (s, charVal) {
-        if (s && s.length) {
-            var pos = s.length;
-            for (var i = s.length - 1; i >= 0; i--) {
-                if (s[i] != charVal)
-                    break;
-                pos--;
-            }
-            s = s.substring(0, pos);
-        }
-        return s;
-    };
-    StringWrapper.replace = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.replaceAll = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.slice = function (s, from, to) {
-        if (from === void 0) { from = 0; }
-        if (to === void 0) { to = null; }
-        return s.slice(from, to === null ? undefined : to);
-    };
-    StringWrapper.replaceAllMapped = function (s, from, cb) {
-        return s.replace(from, function () {
-            var matches = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                matches[_i - 0] = arguments[_i];
-            }
-            // Remove offset & string from the result array
-            matches.splice(-2, 2);
-            // The callback receives match, p1, ..., pn
-            return cb(matches);
-        });
-    };
-    StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-    StringWrapper.compare = function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else if (a > b) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    };
-    return StringWrapper;
-}());
 
 var NumberWrapper$3 = (function () {
     function NumberWrapper() {
@@ -32456,10 +32278,22 @@ function getSymbolIterator$3() {
 var CAMEL_CASE_REGEXP$1 = /([A-Z])/g;
 var DASH_CASE_REGEXP = /-([a-z])/g;
 function camelCaseToDashCase$1(input) {
-    return StringWrapper$3.replaceAllMapped(input, CAMEL_CASE_REGEXP$1, function (m) { return '-' + m[1].toLowerCase(); });
+    return input.replace(CAMEL_CASE_REGEXP$1, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        return '-' + m[1].toLowerCase();
+    });
 }
 function dashCaseToCamelCase(input) {
-    return StringWrapper$3.replaceAllMapped(input, DASH_CASE_REGEXP, function (m) { return m[1].toUpperCase(); });
+    return input.replace(DASH_CASE_REGEXP, function () {
+        var m = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            m[_i - 0] = arguments[_i];
+        }
+        return m[1].toUpperCase();
+    });
 }
 
 /**
@@ -32680,7 +32514,7 @@ var _$9 = 57;
 var _$PERIOD = 46;
 function _findDimensionalSuffix(value) {
     for (var i = 0; i < value.length; i++) {
-        var c = StringWrapper$3.charCodeAt(value, i);
+        var c = value.charCodeAt(i);
         if ((c >= _$0 && c <= _$9) || c == _$PERIOD)
             continue;
         return value.substring(i, value.length);
@@ -33963,11 +33797,10 @@ var DomRenderer = (function () {
     DomRenderer.prototype.setBindingDebugInfo = function (renderElement, propertyName, propertyValue) {
         var dashCasedPropertyName = camelCaseToDashCase$1(propertyName);
         if (getDOM$1().isCommentNode(renderElement)) {
-            var existingBindings = StringWrapper$3.replaceAll(getDOM$1().getText(renderElement), /\n/g, '')
-                .match(TEMPLATE_BINDINGS_EXP);
+            var existingBindings = getDOM$1().getText(renderElement).replace(/\n/g, '').match(TEMPLATE_BINDINGS_EXP);
             var parsedBindings = Json$3.parse(existingBindings[1]);
             parsedBindings[dashCasedPropertyName] = propertyValue;
-            getDOM$1().setText(renderElement, StringWrapper$3.replace(TEMPLATE_COMMENT_TEXT, '{}', Json$3.stringify(parsedBindings)));
+            getDOM$1().setText(renderElement, TEMPLATE_COMMENT_TEXT.replace('{}', Json$3.stringify(parsedBindings)));
         }
         else {
             this.setElementAttribute(renderElement, propertyName, propertyValue);
@@ -34033,10 +33866,10 @@ var COMPONENT_VARIABLE$1 = '%COMP%';
 var HOST_ATTR$1 = "_nghost-" + COMPONENT_VARIABLE$1;
 var CONTENT_ATTR$1 = "_ngcontent-" + COMPONENT_VARIABLE$1;
 function _shimContentAttribute(componentShortId) {
-    return StringWrapper$3.replaceAll(CONTENT_ATTR$1, COMPONENT_REGEX, componentShortId);
+    return CONTENT_ATTR$1.replace(COMPONENT_REGEX, componentShortId);
 }
 function _shimHostAttribute(componentShortId) {
-    return StringWrapper$3.replaceAll(HOST_ATTR$1, COMPONENT_REGEX, componentShortId);
+    return HOST_ATTR$1.replace(COMPONENT_REGEX, componentShortId);
 }
 function _flattenStyles(compId, styles, target) {
     for (var i = 0; i < styles.length; i++) {
@@ -34045,7 +33878,7 @@ function _flattenStyles(compId, styles, target) {
             _flattenStyles(compId, style$$1, target);
         }
         else {
-            style$$1 = StringWrapper$3.replaceAll(style$$1, COMPONENT_REGEX, compId);
+            style$$1 = style$$1.replace(COMPONENT_REGEX, compId);
             target.push(style$$1);
         }
     }
@@ -34340,9 +34173,7 @@ var KeyEventsPlugin = (function (_super) {
     KeyEventsPlugin.parseEventName = function (eventName) {
         var parts = eventName.toLowerCase().split('.');
         var domEventName = parts.shift();
-        if ((parts.length === 0) ||
-            !(StringWrapper$3.equals(domEventName, 'keydown') ||
-                StringWrapper$3.equals(domEventName, 'keyup'))) {
+        if ((parts.length === 0) || !(domEventName === 'keydown' || domEventName === 'keyup')) {
             return null;
         }
         var key = KeyEventsPlugin._normalizeKey(parts.pop());
@@ -34367,10 +34198,10 @@ var KeyEventsPlugin = (function (_super) {
         var fullKey = '';
         var key = getDOM$1().getEventKey(event);
         key = key.toLowerCase();
-        if (StringWrapper$3.equals(key, ' ')) {
+        if (key === ' ') {
             key = 'space'; // for readability
         }
-        else if (StringWrapper$3.equals(key, '.')) {
+        else if (key === '.') {
             key = 'dot'; // because '.' is used as a separator in event names
         }
         modifierKeys.forEach(function (modifierName) {
@@ -34386,7 +34217,7 @@ var KeyEventsPlugin = (function (_super) {
     };
     KeyEventsPlugin.eventCallback = function (element, fullKey, handler, zone) {
         return function (event /** TODO #9100 */) {
-            if (StringWrapper$3.equals(KeyEventsPlugin.getEventFullKey(event), fullKey)) {
+            if (KeyEventsPlugin.getEventFullKey(event) === fullKey) {
                 zone.runGuarded(function () { return handler(event); });
             }
         };
@@ -35237,6 +35068,74 @@ var __platform_browser_private__ = {
  */
 var INTERNAL_BROWSER_PLATFORM_PROVIDERS = __platform_browser_private__.INTERNAL_BROWSER_PLATFORM_PROVIDERS;
 
+var __extends$56 = (undefined && undefined.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var ResourceLoaderImpl = (function (_super) {
+    __extends$56(ResourceLoaderImpl, _super);
+    function ResourceLoaderImpl() {
+        _super.apply(this, arguments);
+    }
+    ResourceLoaderImpl.prototype.get = function (url) {
+        var resolve;
+        var reject;
+        var promise = new Promise(function (res, rej) {
+            resolve = res;
+            reject = rej;
+        });
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'text';
+        xhr.onload = function () {
+            // responseText is the old-school way of retrieving response (supported by IE8 & 9)
+            // response/responseType properties were introduced in ResourceLoader Level2 spec (supported
+            // by IE10)
+            var response = xhr.response || xhr.responseText;
+            // normalize IE9 bug (http://bugs.jquery.com/ticket/1450)
+            var status = xhr.status === 1223 ? 204 : xhr.status;
+            // fix status code when it is 0 (0 status is undocumented).
+            // Occurs when accessing file resources or on Android 4.1 stock browser
+            // while retrieving files from application cache.
+            if (status === 0) {
+                status = response ? 200 : 0;
+            }
+            if (200 <= status && status <= 300) {
+                resolve(response);
+            }
+            else {
+                reject("Failed to load " + url);
+            }
+        };
+        xhr.onerror = function () { reject("Failed to load " + url); };
+        xhr.send();
+        return promise;
+    };
+    ResourceLoaderImpl.decorators = [
+        { type: Injectable },
+    ];
+    /** @nocollapse */
+    ResourceLoaderImpl.ctorParameters = [];
+    return ResourceLoaderImpl;
+}(ResourceLoader));
+
+/**
+ * @license
+ * Copyright Google Inc. All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+var INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS = [
+    INTERNAL_BROWSER_PLATFORM_PROVIDERS,
+    {
+        provide: COMPILER_OPTIONS,
+        useValue: { providers: [{ provide: ResourceLoader, useClass: ResourceLoaderImpl }] },
+        multi: true
+    },
+];
+
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -35274,7 +35173,6 @@ function isPresent$4(obj) {
 function isBlank$4(obj) {
     return obj === undefined || obj === null;
 }
-
 
 
 
@@ -35345,74 +35243,6 @@ var NumberWrapper$4 = (function () {
 
 var _symbolIterator$4 = null;
 
-var __extends$56 = (undefined && undefined.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
-var ResourceLoaderImpl = (function (_super) {
-    __extends$56(ResourceLoaderImpl, _super);
-    function ResourceLoaderImpl() {
-        _super.apply(this, arguments);
-    }
-    ResourceLoaderImpl.prototype.get = function (url) {
-        var resolve;
-        var reject;
-        var promise = new Promise(function (res, rej) {
-            resolve = res;
-            reject = rej;
-        });
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.responseType = 'text';
-        xhr.onload = function () {
-            // responseText is the old-school way of retrieving response (supported by IE8 & 9)
-            // response/responseType properties were introduced in ResourceLoader Level2 spec (supported
-            // by IE10)
-            var response = isPresent$4(xhr.response) ? xhr.response : xhr.responseText;
-            // normalize IE9 bug (http://bugs.jquery.com/ticket/1450)
-            var status = xhr.status === 1223 ? 204 : xhr.status;
-            // fix status code when it is 0 (0 status is undocumented).
-            // Occurs when accessing file resources or on Android 4.1 stock browser
-            // while retrieving files from application cache.
-            if (status === 0) {
-                status = response ? 200 : 0;
-            }
-            if (200 <= status && status <= 300) {
-                resolve(response);
-            }
-            else {
-                reject("Failed to load " + url);
-            }
-        };
-        xhr.onerror = function () { reject("Failed to load " + url); };
-        xhr.send();
-        return promise;
-    };
-    ResourceLoaderImpl.decorators = [
-        { type: Injectable },
-    ];
-    /** @nocollapse */
-    ResourceLoaderImpl.ctorParameters = [];
-    return ResourceLoaderImpl;
-}(ResourceLoader));
-
-/**
- * @license
- * Copyright Google Inc. All Rights Reserved.
- *
- * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
- */
-var INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS = [
-    INTERNAL_BROWSER_PLATFORM_PROVIDERS,
-    {
-        provide: COMPILER_OPTIONS,
-        useValue: { providers: [{ provide: ResourceLoader, useClass: ResourceLoaderImpl }] },
-        multi: true
-    },
-];
-
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -35472,7 +35302,7 @@ var CachedResourceLoader = (function (_super) {
  */
 
 /**
- * @experimental API related to bootstrapping are still under review.
+ * @stable
  */
 var platformBrowserDynamic = createPlatformFactory(platformCoreDynamic, 'browserDynamic', INTERNAL_BROWSER_DYNAMIC_PLATFORM_PROVIDERS);
 
@@ -35543,74 +35373,6 @@ function isArray$7(obj) {
 
 
 
-var StringWrapper$5 = (function () {
-    function StringWrapper() {
-    }
-    StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-    StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-    StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-    StringWrapper.equals = function (s, s2) { return s === s2; };
-    StringWrapper.stripLeft = function (s, charVal) {
-        if (s && s.length) {
-            var pos = 0;
-            for (var i = 0; i < s.length; i++) {
-                if (s[i] != charVal)
-                    break;
-                pos++;
-            }
-            s = s.substring(pos);
-        }
-        return s;
-    };
-    StringWrapper.stripRight = function (s, charVal) {
-        if (s && s.length) {
-            var pos = s.length;
-            for (var i = s.length - 1; i >= 0; i--) {
-                if (s[i] != charVal)
-                    break;
-                pos--;
-            }
-            s = s.substring(0, pos);
-        }
-        return s;
-    };
-    StringWrapper.replace = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.replaceAll = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.slice = function (s, from, to) {
-        if (from === void 0) { from = 0; }
-        if (to === void 0) { to = null; }
-        return s.slice(from, to === null ? undefined : to);
-    };
-    StringWrapper.replaceAllMapped = function (s, from, cb) {
-        return s.replace(from, function () {
-            var matches = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                matches[_i - 0] = arguments[_i];
-            }
-            // Remove offset & string from the result array
-            matches.splice(-2, 2);
-            // The callback receives match, p1, ..., pn
-            return cb(matches);
-        });
-    };
-    StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-    StringWrapper.compare = function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else if (a > b) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    };
-    return StringWrapper;
-}());
 
 var NumberWrapper$5 = (function () {
     function NumberWrapper() {
@@ -36157,6 +35919,9 @@ var isPromise$2 = __core_private__.isPromise;
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
+function isEmptyInputValue(value) {
+    return value == null || typeof value === 'string' && value.length === 0;
+}
 /**
  * Providers for validators to be used for {@link FormControl}s in a form.
  *
@@ -36200,20 +35965,19 @@ var Validators = (function () {
      * Validator that requires controls to have a non-empty value.
      */
     Validators.required = function (control) {
-        return isBlank$5(control.value) || (isString$5(control.value) && control.value == '') ?
-            { 'required': true } :
-            null;
+        return isEmptyInputValue(control.value) ? { 'required': true } : null;
     };
     /**
      * Validator that requires controls to have a value of a minimum length.
      */
     Validators.minLength = function (minLength) {
         return function (control) {
-            if (isPresent$5(Validators.required(control)))
-                return null;
-            var v = control.value;
-            return v.length < minLength ?
-                { 'minlength': { 'requiredLength': minLength, 'actualLength': v.length } } :
+            if (isEmptyInputValue(control.value)) {
+                return null; // don't validate empty values to allow optional controls
+            }
+            var length = typeof control.value === 'string' ? control.value.length : 0;
+            return length < minLength ?
+                { 'minlength': { 'requiredLength': minLength, 'actualLength': length } } :
                 null;
         };
     };
@@ -36222,11 +35986,9 @@ var Validators = (function () {
      */
     Validators.maxLength = function (maxLength) {
         return function (control) {
-            if (isPresent$5(Validators.required(control)))
-                return null;
-            var v = control.value;
-            return v.length > maxLength ?
-                { 'maxlength': { 'requiredLength': maxLength, 'actualLength': v.length } } :
+            var length = typeof control.value === 'string' ? control.value.length : 0;
+            return length > maxLength ?
+                { 'maxlength': { 'requiredLength': maxLength, 'actualLength': length } } :
                 null;
         };
     };
@@ -36235,10 +35997,14 @@ var Validators = (function () {
      */
     Validators.pattern = function (pattern) {
         return function (control) {
+            if (isEmptyInputValue(control.value)) {
+                return null; // don't validate empty values to allow optional controls
+            }
             var regex = new RegExp("^" + pattern + "$");
-            var v = control.value;
-            return regex.test(v) ? null :
-                { 'pattern': { 'requiredPattern': "^" + pattern + "$", 'actualValue': v } };
+            var value = control.value;
+            return regex.test(value) ?
+                null :
+                { 'pattern': { 'requiredPattern': "^" + pattern + "$", 'actualValue': value } };
         };
     };
     /**
@@ -36706,7 +36472,7 @@ function _buildValueString(id, value) {
         return "" + value;
     if (!isPrimitive$5(value))
         value = 'Object';
-    return StringWrapper$5.slice(id + ": " + value, 0, 50);
+    return (id + ": " + value).slice(0, 50);
 }
 function _extractId(valueString) {
     return valueString.split(':')[0];
@@ -36888,7 +36654,7 @@ function _buildValueString$1(id, value) {
         value = "'" + value + "'";
     if (!isPrimitive$5(value))
         value = 'Object';
-    return StringWrapper$5.slice(id + ": " + value, 0, 50);
+    return (id + ": " + value).slice(0, 50);
 }
 function _extractId$1(valueString) {
     return valueString.split(':')[0];
@@ -37447,9 +37213,9 @@ var EventEmitter$1 = (function (_super) {
         var errorFn = function (err) { return null; };
         var completeFn = function () { return null; };
         if (generatorOrNext && typeof generatorOrNext === 'object') {
-            schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
+            schedulerFn = this.__isAsync ? function (value) {
                 setTimeout(function () { return generatorOrNext.next(value); });
-            } : function (value /** TODO #9100 */) { generatorOrNext.next(value); };
+            } : function (value) { generatorOrNext.next(value); };
             if (generatorOrNext.error) {
                 errorFn = this.__isAsync ? function (err) { setTimeout(function () { return generatorOrNext.error(err); }); } :
                     function (err) { generatorOrNext.error(err); };
@@ -37460,9 +37226,8 @@ var EventEmitter$1 = (function (_super) {
             }
         }
         else {
-            schedulerFn = this.__isAsync ? function (value /** TODO #9100 */) {
-                setTimeout(function () { return generatorOrNext(value); });
-            } : function (value /** TODO #9100 */) { generatorOrNext(value); };
+            schedulerFn = this.__isAsync ? function (value) { setTimeout(function () { return generatorOrNext(value); }); } :
+                function (value) { generatorOrNext(value); };
             if (error) {
                 errorFn =
                     this.__isAsync ? function (err) { setTimeout(function () { return error(err); }); } : function (err) { error(err); };
@@ -37645,15 +37410,12 @@ function _find(control, path, delimiter) {
         return null;
     return path.reduce(function (v, name) {
         if (v instanceof FormGroup) {
-            return isPresent$5(v.controls[name]) ? v.controls[name] : null;
+            return v.controls[name] || null;
         }
-        else if (v instanceof FormArray) {
-            var index = name;
-            return isPresent$5(v.at(index)) ? v.at(index) : null;
+        if (v instanceof FormArray) {
+            return v.at(name) || null;
         }
-        else {
-            return null;
-        }
+        return null;
     }, control);
 }
 function toObservable(r) {
@@ -38953,7 +38715,8 @@ var resolvedPromise = Promise.resolve(null);
  * sub-groups within the form.
  *
  * You can listen to the directive's `ngSubmit` event to be notified when the user has
- * triggered a form submission.
+ * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+ * submission event.
  *
  * {@example forms/ts/simpleForm/simple_form_example.ts region='Component'}
  *
@@ -39044,9 +38807,9 @@ var NgForm = (function (_super) {
         });
     };
     NgForm.prototype.setValue = function (value) { this.control.setValue(value); };
-    NgForm.prototype.onSubmit = function () {
+    NgForm.prototype.onSubmit = function ($event) {
         this._submitted = true;
-        this.ngSubmit.emit(null);
+        this.ngSubmit.emit($event);
         return false;
     };
     NgForm.prototype.onReset = function () { this.resetForm(); };
@@ -39064,7 +38827,7 @@ var NgForm = (function (_super) {
         { type: Directive, args: [{
                     selector: 'form:not([ngNoForm]):not([formGroup]),ngForm,[ngForm]',
                     providers: [formDirectiveProvider],
-                    host: { '(submit)': 'onSubmit()', '(reset)': 'onReset()' },
+                    host: { '(submit)': 'onSubmit($event)', '(reset)': 'onReset()' },
                     outputs: ['ngSubmit'],
                     exportAs: 'ngForm'
                 },] },
@@ -39595,6 +39358,10 @@ var formDirectiveProvider$1 = {
  * its {@link AbstractControl.statusChanges} event to be notified when the validation status is
  * re-calculated.
  *
+ * Furthermore, you can listen to the directive's `ngSubmit` event to be notified when the user has
+ * triggered a form submission. The `ngSubmit` event will be emitted with the original form
+ * submission event.
+ *
  * ### Example
  *
  * In this example, we create form controls for first name and last name.
@@ -39673,9 +39440,9 @@ var FormGroupDirective = (function (_super) {
         var ctrl = this.form.get(dir.path);
         ctrl.setValue(value);
     };
-    FormGroupDirective.prototype.onSubmit = function () {
+    FormGroupDirective.prototype.onSubmit = function ($event) {
         this._submitted = true;
-        this.ngSubmit.emit(null);
+        this.ngSubmit.emit($event);
         return false;
     };
     FormGroupDirective.prototype.onReset = function () { this.resetForm(); };
@@ -39720,7 +39487,7 @@ var FormGroupDirective = (function (_super) {
         { type: Directive, args: [{
                     selector: '[formGroup]',
                     providers: [formDirectiveProvider$1],
-                    host: { '(submit)': 'onSubmit()', '(reset)': 'onReset()' },
+                    host: { '(submit)': 'onSubmit($event)', '(reset)': 'onReset()' },
                     exportAs: 'ngForm'
                 },] },
     ];
@@ -40601,74 +40368,6 @@ function isArray$8(obj) {
 
 
 
-var StringWrapper$6 = (function () {
-    function StringWrapper() {
-    }
-    StringWrapper.fromCharCode = function (code) { return String.fromCharCode(code); };
-    StringWrapper.charCodeAt = function (s, index) { return s.charCodeAt(index); };
-    StringWrapper.split = function (s, regExp) { return s.split(regExp); };
-    StringWrapper.equals = function (s, s2) { return s === s2; };
-    StringWrapper.stripLeft = function (s, charVal) {
-        if (s && s.length) {
-            var pos = 0;
-            for (var i = 0; i < s.length; i++) {
-                if (s[i] != charVal)
-                    break;
-                pos++;
-            }
-            s = s.substring(pos);
-        }
-        return s;
-    };
-    StringWrapper.stripRight = function (s, charVal) {
-        if (s && s.length) {
-            var pos = s.length;
-            for (var i = s.length - 1; i >= 0; i--) {
-                if (s[i] != charVal)
-                    break;
-                pos--;
-            }
-            s = s.substring(0, pos);
-        }
-        return s;
-    };
-    StringWrapper.replace = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.replaceAll = function (s, from, replace) {
-        return s.replace(from, replace);
-    };
-    StringWrapper.slice = function (s, from, to) {
-        if (from === void 0) { from = 0; }
-        if (to === void 0) { to = null; }
-        return s.slice(from, to === null ? undefined : to);
-    };
-    StringWrapper.replaceAllMapped = function (s, from, cb) {
-        return s.replace(from, function () {
-            var matches = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                matches[_i - 0] = arguments[_i];
-            }
-            // Remove offset & string from the result array
-            matches.splice(-2, 2);
-            // The callback receives match, p1, ..., pn
-            return cb(matches);
-        });
-    };
-    StringWrapper.contains = function (s, substr) { return s.indexOf(substr) != -1; };
-    StringWrapper.compare = function (a, b) {
-        if (a < b) {
-            return -1;
-        }
-        else if (a > b) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    };
-    return StringWrapper;
-}());
 
 var NumberWrapper$6 = (function () {
     function NumberWrapper() {
@@ -41113,18 +40812,15 @@ var Headers = (function () {
             return;
         }
         if (headers instanceof Headers) {
-            headers._headers.forEach(function (value, name) {
-                var lcName = name.toLowerCase();
-                _this._headers.set(lcName, value);
-                _this.mayBeSetNormalizedName(name);
+            headers._headers.forEach(function (values, name) {
+                values.forEach(function (value) { return _this.append(name, value); });
             });
             return;
         }
         Object.keys(headers).forEach(function (name) {
-            var value = headers[name];
-            var lcName = name.toLowerCase();
-            _this._headers.set(lcName, Array.isArray(value) ? value : [value]);
-            _this.mayBeSetNormalizedName(name);
+            var values = Array.isArray(headers[name]) ? headers[name] : [headers[name]];
+            _this.delete(name);
+            values.forEach(function (value) { return _this.append(name, value); });
         });
     }
     /**
@@ -41147,7 +40843,12 @@ var Headers = (function () {
      */
     Headers.prototype.append = function (name, value) {
         var values = this.getAll(name);
-        this.set(name, values === null ? [value] : values.concat([value]));
+        if (values === null) {
+            this.set(name, value);
+        }
+        else {
+            values.push(value);
+        }
     };
     /**
      * Deletes all header values for the given name.
@@ -41183,8 +40884,14 @@ var Headers = (function () {
      * Sets or overrides header value for given name.
      */
     Headers.prototype.set = function (name, value) {
-        var strValue = Array.isArray(value) ? value.join(',') : value;
-        this._headers.set(name.toLowerCase(), [strValue]);
+        if (Array.isArray(value)) {
+            if (value.length) {
+                this._headers.set(name.toLowerCase(), [value.join(',')]);
+            }
+        }
+        else {
+            this._headers.set(name.toLowerCase(), [value]);
+        }
         this.mayBeSetNormalizedName(name);
     };
     /**
@@ -41836,7 +41543,7 @@ var JSONPConnection_ = (function (_super) {
             var callback = _dom.requestCallback(_this._id);
             var url = req.url;
             if (url.indexOf('=JSONP_CALLBACK&') > -1) {
-                url = StringWrapper$6.replace(url, '=JSONP_CALLBACK&', "=" + callback + "&");
+                url = url.replace('=JSONP_CALLBACK&', "=" + callback + "&");
             }
             else if (url.lastIndexOf('=JSONP_CALLBACK') === url.length - '=JSONP_CALLBACK'.length) {
                 url = url.substring(0, url.length - '=JSONP_CALLBACK'.length) + ("=" + callback);
@@ -42356,7 +42063,7 @@ var Request = (function (_super) {
             var search = requestOptions.search.toString();
             if (search.length > 0) {
                 var prefix = '?';
-                if (StringWrapper$6.contains(this.url, '?')) {
+                if (this.url.indexOf('?') != -1) {
                     prefix = (this.url[this.url.length - 1] == '&') ? '' : '&';
                 }
                 // TODO: just delete search-query-looking string in url?
@@ -64966,7 +64673,7 @@ var localforage = createCommonjsModule(function (module, exports) {
     https://mozilla.github.io/localForage
     (c) 2013-2016 Mozilla, Apache License 2.0
 */
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof commonjsGlobal!=="undefined"){g=commonjsGlobal}else if(typeof self!=="undefined"){g=self}else{g=this}g.localforage = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof commonjsRequire=="function"&&commonjsRequire;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw (f.code="MODULE_NOT_FOUND", f)}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof commonjsRequire=="function"&&commonjsRequire;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f();}else if(typeof define==="function"&&define.amd){define([],f);}else{var g;if(typeof window!=="undefined"){g=window;}else if(typeof commonjsGlobal!=="undefined"){g=commonjsGlobal;}else if(typeof self!=="undefined"){g=self;}else{g=this;}g.localforage = f();}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof commonjsRequire=="function"&&commonjsRequire;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw (f.code="MODULE_NOT_FOUND", f)}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r);}return n[o].exports}var i=typeof commonjsRequire=="function"&&commonjsRequire;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 'use strict';
 var immediate = _dereq_(2);
 
@@ -65293,7 +65000,7 @@ function immediate(task) {
   }
 }
 
-}).call(this,typeof commonjsGlobal !== "undefined" ? commonjsGlobal : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this,typeof commonjsGlobal !== "undefined" ? commonjsGlobal : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
 },{}],3:[function(_dereq_,module,exports){
 (function (global){
 'use strict';
@@ -65301,7 +65008,7 @@ if (typeof global.Promise !== 'function') {
   global.Promise = _dereq_(1);
 }
 
-}).call(this,typeof commonjsGlobal !== "undefined" ? commonjsGlobal : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this,typeof commonjsGlobal !== "undefined" ? commonjsGlobal : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
 },{"1":1}],4:[function(_dereq_,module,exports){
 'use strict';
 
@@ -67417,33 +67124,83 @@ var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, 
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 /**
- * Storage is an easy way to store key/value pairs and other complicated
- * data in a way that uses a variety of storage engines underneath. Currently,
- * Storage uses localforage underneath to abstract away the various storage
- * engines while still providing a simple API.
+ * Storage is an easy way to store key/value pairs and JSON objects.
+ * Storage uses a variety of storage engines underneath, picking the best one available
+ * depending on the platform.
  *
- * When running natively, Storage will prioritize using SQLite, as it's one of
+ * When running in a native app context, Storage will prioritize using SQLite, as it's one of
  * the most stable and widely used file-based databases, and avoids some of the
- * pitfalls of things like localstorage that the OS can decide to clear out in
- * low disk-space situations.
+ * pitfalls of things like localstorage and IndexedDB, such as the OS deciding to clear out such
+ * data in low disk-space situations.
  *
  * When running in the web or as a Progressive Web App, Storage will attempt to use
  * IndexedDB, WebSQL, and localstorage, in that order.
+ *
+ * @usage
+ * First, if you'd like to use SQLite, install the cordova-sqlite-storage plugin:
+ * ```bash
+ * cordova plugin add cordova-sqlite-storage --save
+ * ```
+ *
+ * Next, install the package (comes by default for Ionic 2 apps >= RC.0)
+ *
+ * ```bash
+ * npm install --save @ionic/storage
+ * ```
+ *
+ * Next, add it to the providers list in your `NgModule` declaration (for example, in `src/app.module.ts`):
+ *
+ * ```typescript
+  import { Storage } from '@ionic/storage';
+
+  @NgModule({
+    declarations: [
+      // ...
+    ],
+    imports: [
+      IonicModule.forRoot(MyApp)
+    ],
+    bootstrap: [IonicApp],
+    entryComponents: [
+      // ...
+    ],
+    providers: [
+      Storage
+    ]
+  })
+  export class AppModule {}
+ *```
+ *
+ * Finally, inject it into any of your components or pages:
+ * ```typescript
+ * import { Storage } from '@ionic/storage';
+
+ * export class MyApp {
+ *   constructor(storage: Storage) {
+ *      storage.set('name', 'Max');
+ *      storage.get('name').then((val) => {
+ *        console.log('Your name is', val);
+ *      })
+ *   }
+ * }
+ * ```
  */
 var Storage = (function () {
     function Storage() {
-        // TODO: Remove this once we figure out our proper build
+        var _this = this;
         this._db = localforage;
         this._db.config({
             name: '_ionicstorage',
             storeName: '_ionickv'
         });
-        this._db.setDriver([
+        this._db.defineDriver(cordovaSQLiteDriver).then(function () { return _this._db.setDriver([
             cordovaSQLiteDriver._driver,
-            this._db.INDEXEDDB,
-            this._db.WEBSQL,
-            this._db.LOCALSTORAGE
-        ]);
+            _this._db.INDEXEDDB,
+            _this._db.WEBSQL,
+            _this._db.LOCALSTORAGE
+        ]); }).then(function () {
+            console.info('Ionic Storage driver:', _this._db.driver());
+        });
     }
     /**
      * Get the value assocated with the given key.
@@ -67501,7 +67258,6 @@ var Storage = (function () {
     return Storage;
 }());
 
-/* ion-compiler */
 var __decorate$7 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -67522,10 +67278,9 @@ var PopoverPage = (function () {
         Component({
             template: "\n    <ion-list>\n      <button ion-item (click)=\"close()\">Learn Ionic</button>\n      <button ion-item (click)=\"close()\">Documentation</button>\n      <button ion-item (click)=\"close()\">Showcase</button>\n      <button ion-item (click)=\"close()\">GitHub Repo</button>\n    </ion-list>\n  "
         }), 
-        __metadata$6('design:paramtypes', [(typeof (_a = typeof ViewController !== 'undefined' && ViewController) === 'function' && _a) || Object])
+        __metadata$6('design:paramtypes', [ViewController])
     ], PopoverPage);
     return PopoverPage;
-    var _a;
 }());
 var AboutPage = (function () {
     function AboutPage(popoverCtrl) {
@@ -67537,22 +67292,20 @@ var AboutPage = (function () {
     };
     AboutPage = __decorate$7([
         Component({
-            selector: 'page-about', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>About</ion-title>\n    <ion-buttons end>\n      <button ion-button icon-only (click)="presentPopover($event)">\n        <ion-icon name="more"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div class="about-header">\n    <img src="assets/img/ionic-logo-white.svg">\n  </div>\n  <div padding class="about-info">\n    <h4>CanchasApp</h4>\n\n    <p>\n      Esta aplicacion esta orientada a ayudar a deportistas futbolistas a encontrar canchas de futbol y sus datos lo antes posible! ayudando a crear equipos y puntuar jugadores despues de cada partido.\n    </p>\n    <h5>Selecciona tu ubicación:</h5>\n    <ion-list no-lines>\n\n      <ion-item>\n        <ion-icon name="pin" item-left></ion-icon>\n        <ion-label>Location</ion-label>\n        <ion-select>\n          <ion-option value="corrientes">Centro, Corrientes</ion-option>\n          <ion-option value="barranqueras">Barranqueras, Chaco</ion-option>\n          <ion-option value="resistencia">Resistencia, Chaco</ion-option>\n        </ion-select>\n      </ion-item>\n    </ion-list>\n\n  </div>\n</ion-content>\n'
+            selector: 'page-about',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/about/about.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>About</ion-title>\n    <ion-buttons end>\n      <button ion-button icon-only (click)="presentPopover($event)">\n        <ion-icon name="more"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n  <div class="about-header">\n    <img src="assets/img/ionic-logo-white.svg">\n  </div>\n  <div padding class="about-info">\n    <h4>CanchasApp</h4>\n\n    <p>\n      Esta aplicacion esta orientada a ayudar a deportistas futbolistas a encontrar canchas de futbol y sus datos lo antes posible! ayudando a crear equipos y puntuar jugadores despues de cada partido.\n    </p>\n    <h5>Selecciona tu ubicación:</h5>\n    <ion-list no-lines>\n\n      <ion-item>\n        <ion-icon name="pin" item-left></ion-icon>\n        <ion-label>Location</ion-label>\n        <ion-select>\n          <ion-option value="corrientes">Centro, Corrientes</ion-option>\n          <ion-option value="barranqueras">Barranqueras, Chaco</ion-option>\n          <ion-option value="resistencia">Resistencia, Chaco</ion-option>\n        </ion-select>\n      </ion-item>\n    </ion-list>\n\n  </div>\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/about/about.html"*/
         }), 
-        __metadata$6('design:paramtypes', [(typeof (_a = typeof PopoverController !== 'undefined' && PopoverController) === 'function' && _a) || Object])
+        __metadata$6('design:paramtypes', [PopoverController])
     ], AboutPage);
     return AboutPage;
-    var _a;
 }());
 
-/* ion-compiler */
-var __decorate$11 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$10 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$10 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$9 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var UserData = (function () {
@@ -67603,22 +67356,20 @@ var UserData = (function () {
             return value;
         });
     };
-    UserData = __decorate$11([
+    UserData = __decorate$10([
         Injectable(), 
-        __metadata$10('design:paramtypes', [(typeof (_a = typeof Events !== 'undefined' && Events) === 'function' && _a) || Object, (typeof (_b = typeof Storage !== 'undefined' && Storage) === 'function' && _b) || Object])
+        __metadata$9('design:paramtypes', [Events, Storage])
     ], UserData);
     return UserData;
-    var _a, _b;
 }());
 
-/* ion-compiler */
-var __decorate$10 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$9 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$9 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$8 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var CanchasData = (function () {
@@ -67697,22 +67448,20 @@ var CanchasData = (function () {
             return data.map;
         });
     };
-    CanchasData = __decorate$10([
+    CanchasData = __decorate$9([
         Injectable(), 
-        __metadata$9('design:paramtypes', [(typeof (_a = typeof Http !== 'undefined' && Http) === 'function' && _a) || Object, (typeof (_b = typeof UserData !== 'undefined' && UserData) === 'function' && _b) || Object])
+        __metadata$8('design:paramtypes', [Http, UserData])
     ], CanchasData);
     return CanchasData;
-    var _a, _b;
 }());
 
-/* ion-compiler */
-var __decorate$9 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$8 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$8 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$7 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var MapPage = (function () {
@@ -67724,7 +67473,7 @@ var MapPage = (function () {
             var mapEle = document.getElementById('map');
             var map = new google.maps.Map(mapEle, {
                 center: mapData.find(function (d) { return d.center; }),
-                zoom: 16
+                zoom: 14
             });
             mapData.forEach(function (markerData) {
                 var infoWindow = new google.maps.InfoWindow({
@@ -67744,24 +67493,22 @@ var MapPage = (function () {
             });
         });
     };
-    MapPage = __decorate$9([
+    MapPage = __decorate$8([
         Component({
-            selector: 'page-map', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Map</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="map-page">\n  <div id="map"></div>\n</ion-content>\n'
+            selector: 'page-map',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/map/map.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Map</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="map-page">\n  <div id="map"></div>\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/map/map.html"*/
         }), 
-        __metadata$8('design:paramtypes', [(typeof (_a = typeof CanchasData !== 'undefined' && CanchasData) === 'function' && _a) || Object])
+        __metadata$7('design:paramtypes', [CanchasData])
     ], MapPage);
     return MapPage;
-    var _a;
 }());
 
-/* ion-compiler */
-var __decorate$13 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$12 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$12 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$11 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var JugadoresFilterPage = (function () {
@@ -67798,24 +67545,22 @@ var JugadoresFilterPage = (function () {
         // can "dismiss" itself and pass back data
         this.viewCtrl.dismiss(data);
     };
-    JugadoresFilterPage = __decorate$13([
+    JugadoresFilterPage = __decorate$12([
         Component({
-            selector: 'page-canchas-filter', template: /* ion-inline-template */ '<ion-header>\n  <ion-toolbar>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">Cancel</button>\n    </ion-buttons>\n\n    <ion-title>\n      Filter Sessions\n    </ion-title>\n\n    <ion-buttons end>\n      <button ion-button (click)="applyFilters()">Done</button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content class="outer-content">\n\n  <ion-list>\n    <ion-list-header>Tracks</ion-list-header>\n\n    <ion-item *ngFor="let track of tracks" [attr.track]="track.name | lowercase">\n      <span item-left class="dot"></span>\n      <ion-label>{{track.name}}</ion-label>\n      <ion-toggle [(ngModel)]="track.isChecked" color="secondary"></ion-toggle>\n    </ion-item>\n\n  </ion-list>\n\n  <ion-list>\n    <button ion-item (click)="resetFilters()" detail-none class="reset-filters">\n      Reset All Filters\n    </button>\n  </ion-list>\n\n</ion-content>\n'
+            selector: 'page-canchas-filter',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/canchas-filter/canchas-filter.html"*/'<ion-header>\n  <ion-toolbar>\n    <ion-buttons start>\n      <button ion-button (click)="dismiss()">Cancel</button>\n    </ion-buttons>\n\n    <ion-title>\n      Filter Sessions\n    </ion-title>\n\n    <ion-buttons end>\n      <button ion-button (click)="applyFilters()">Done</button>\n    </ion-buttons>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content class="outer-content">\n\n  <ion-list>\n    <ion-list-header>Tracks</ion-list-header>\n\n    <ion-item *ngFor="let track of tracks" [attr.track]="track.name | lowercase">\n      <span item-left class="dot"></span>\n      <ion-label>{{track.name}}</ion-label>\n      <ion-toggle [(ngModel)]="track.isChecked" color="secondary"></ion-toggle>\n    </ion-item>\n\n  </ion-list>\n\n  <ion-list>\n    <button ion-item (click)="resetFilters()" detail-none class="reset-filters">\n      Reset All Filters\n    </button>\n  </ion-list>\n\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/canchas-filter/canchas-filter.html"*/
         }), 
-        __metadata$12('design:paramtypes', [(typeof (_a = typeof CanchasData !== 'undefined' && CanchasData) === 'function' && _a) || Object, (typeof (_b = typeof NavParams !== 'undefined' && NavParams) === 'function' && _b) || Object, (typeof (_c = typeof ViewController !== 'undefined' && ViewController) === 'function' && _c) || Object])
+        __metadata$11('design:paramtypes', [CanchasData, NavParams, ViewController])
     ], JugadoresFilterPage);
     return JugadoresFilterPage;
-    var _a, _b, _c;
 }());
 
-/* ion-compiler */
-var __decorate$14 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$13 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$13 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$12 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var CanchaDetailPage = (function () {
@@ -67827,24 +67572,22 @@ var CanchaDetailPage = (function () {
         // go to the session detail page
         // and pass in the session data
     };
-    CanchaDetailPage = __decorate$14([
+    CanchaDetailPage = __decorate$13([
         Component({
-            selector: 'page-cancha-detail', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <ion-title>Info</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <h1>{{cancha.name}}</h1>\n  <ion-list>\n    <ion-item>\n      <ion-icon name="information-circle"> {{cancha.description}}</ion-icon>\n    </ion-item>\n    <ion-item>\n      <ion-icon name="map"> {{cancha.location}}</ion-icon> \n    </ion-item>\n    <ion-item>\n      <ion-icon name="logo-whatsapp"> {{cancha.phoneNumber}}</ion-icon>   \n    </ion-item>\n    <ion-item>\n      <ion-icon name="pricetag"> ${{cancha.price}}</ion-icon>\n    </ion-item>\n  </ion-list>\n</ion-content>\n  '
+            selector: 'page-cancha-detail',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/cancha-detail/cancha-detail.html"*/'<ion-header>\n  <ion-navbar>\n    <ion-title>Info</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding>\n  <h1>{{cancha.name}}</h1>\n  <ion-list>\n    <ion-item>\n      <ion-icon name="information-circle"> {{cancha.description}}</ion-icon>\n    </ion-item>\n    <ion-item>\n      <ion-icon name="map"> {{cancha.location}}</ion-icon> \n    </ion-item>\n    <ion-item>\n      <ion-icon name="logo-whatsapp"> {{cancha.phoneNumber}}</ion-icon>   \n    </ion-item>\n    <ion-item>\n      <ion-icon name="pricetag"> ${{cancha.price}}</ion-icon>\n    </ion-item>\n  </ion-list>\n</ion-content>\n  '/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/cancha-detail/cancha-detail.html"*/
         }), 
-        __metadata$13('design:paramtypes', [(typeof (_a = typeof NavParams !== 'undefined' && NavParams) === 'function' && _a) || Object])
+        __metadata$12('design:paramtypes', [NavParams])
     ], CanchaDetailPage);
     return CanchaDetailPage;
-    var _a;
 }());
 
-/* ion-compiler */
-var __decorate$12 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$11 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$11 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$10 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var CanchasPage = (function () {
@@ -67872,8 +67615,8 @@ var CanchasPage = (function () {
         var _this = this;
         // Close any open sliding items when the canchas updates
         this.canchasList && this.canchasList.closeSlidingItems();
-        this.confData.getCanchas().then(function (data) {
-            _this.chanchas = data.canchas;
+        this.confData.getCanchas().then(function (canchas) {
+            _this.canchas = canchas;
         });
     };
     CanchasPage.prototype.presentFilter = function () {
@@ -67900,7 +67643,7 @@ var CanchasPage = (function () {
             // remember this session as a user favorite
             this.user.addFavorite(sessionData.name);
             // create an alert instance
-            var alert = this.alertCtrl.create({
+            var alert_1 = this.alertCtrl.create({
                 title: 'Favorite Added',
                 buttons: [{
                         text: 'OK',
@@ -67911,7 +67654,7 @@ var CanchasPage = (function () {
                     }]
             });
             // now present the alert on top of all other content
-            alert.present();
+            alert_1.present();
         }
     };
     CanchasPage.prototype.removeFavorite = function (slidingItem, sessionData, title) {
@@ -67943,28 +67686,26 @@ var CanchasPage = (function () {
         // now present the alert on top of all other content
         alert.present();
     };
-    __decorate$12([
+    __decorate$11([
         ViewChild('canchasList', { read: List }), 
-        __metadata$11('design:type', (typeof (_a = typeof List !== 'undefined' && List) === 'function' && _a) || Object)
+        __metadata$10('design:type', List)
     ], CanchasPage.prototype, "canchasList", void 0);
-    CanchasPage = __decorate$12([
+    CanchasPage = __decorate$11([
         Component({
-            selector: 'page-canchas', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar no-border-bottom>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n\n    <ion-segment [(ngModel)]="segment" (ionChange)="updateCanchas()">\n      <ion-segment-button value="all">\n        All\n      </ion-segment-button>\n      <ion-segment-button value="favorites">\n        Favorites\n      </ion-segment-button>\n    </ion-segment>\n\n    <ion-buttons end>\n      <button ion-button icon-only (click)="presentFilter()">\n        <ion-icon ios="ios-options-outline" md="md-options"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-navbar>\n\n  <ion-toolbar no-border-top>\n    <ion-searchbar color="primary"\n                   [(ngModel)]="queryText"\n                   (ionInput)="updateCanchas()"\n                   placeholder="Search">\n    </ion-searchbar>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content>\n  <ion-list #canchasList> <!--[hidden]="shownSessions === 0"-->\n\n    <ion-item-group *ngFor="let cancha of canchas" ><!--[hidden]="canchas.hide"-->\n\n      <ion-item-sliding><!-- #slidingItem [attr.track]="session.tracks[0] | lowercase" [hidden]="session.hide"-->\n\n        <button ion-item (click)="goToCanchaDetail(cancha)">\n          <h3>{{cancha.name}}</h3>\n          <p>{{cancha.description}}</p>\n      \n        </button>\n\n        <ion-item-options>\n          <button ion-button color="favorite" (click)="addFavorite(slidingItem, cancha)" *ngIf="segment === \'all\'">\n            Favorite\n          </button>\n          <button ion-button color="danger" (click)="removeFavorite(slidingItem, cancha, \'Remove Favorite\')" *ngIf="segment === \'favorites\'">\n            Remove\n          </button>\n        </ion-item-options>\n\n      </ion-item-sliding>\n\n    </ion-item-group>\n\n  </ion-list>\n\n<!--  <ion-list-header [hidden]="shownSessions > 0">\n      No Sessions Found\n  </ion-list-header>-->\n\n\n</ion-content>\n'
+            selector: 'page-canchas',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/canchas/canchas.html"*/'<ion-header>\n  <ion-navbar no-border-bottom>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n\n    <ion-segment [(ngModel)]="segment" (ionChange)="updateCanchas()">\n      <ion-segment-button value="all">\n        All\n      </ion-segment-button>\n      <ion-segment-button value="favorites">\n        Favorites\n      </ion-segment-button>\n    </ion-segment>\n\n    <ion-buttons end>\n      <button ion-button icon-only (click)="presentFilter()">\n        <ion-icon ios="ios-options-outline" md="md-options"></ion-icon>\n      </button>\n    </ion-buttons>\n  </ion-navbar>\n\n  <ion-toolbar no-border-top>\n    <ion-searchbar color="primary"\n                   [(ngModel)]="queryText"\n                   (ionInput)="updateCanchas()"\n                   placeholder="Search">\n    </ion-searchbar>\n  </ion-toolbar>\n</ion-header>\n\n<ion-content>\n  <ion-list #canchasList> <!--[hidden]="shownSessions === 0"-->\n\n    <ion-item-group *ngFor="let cancha of canchas" ><!--[hidden]="canchas.hide"-->\n\n      <ion-item-sliding><!-- #slidingItem [attr.track]="session.tracks[0] | lowercase" [hidden]="session.hide"-->\n\n        <button ion-item (click)="goToCanchaDetail(cancha)">\n          <h3>{{cancha.name}}</h3>\n          <p>{{cancha.description}}</p>\n      \n        </button>\n\n        <ion-item-options>\n          <button ion-button color="favorite" (click)="addFavorite(slidingItem, cancha)" *ngIf="segment === \'all\'">\n            Favorite\n          </button>\n          <button ion-button color="danger" (click)="removeFavorite(slidingItem, cancha, \'Remove Favorite\')" *ngIf="segment === \'favorites\'">\n            Remove\n          </button>\n        </ion-item-options>\n\n      </ion-item-sliding>\n\n    </ion-item-group>\n\n  </ion-list>\n\n<!--  <ion-list-header [hidden]="shownSessions > 0">\n      No Sessions Found\n  </ion-list-header>-->\n\n\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/canchas/canchas.html"*/
         }), 
-        __metadata$11('design:paramtypes', [(typeof (_b = typeof AlertController !== 'undefined' && AlertController) === 'function' && _b) || Object, (typeof (_c = typeof App !== 'undefined' && App) === 'function' && _c) || Object, (typeof (_d = typeof ModalController !== 'undefined' && ModalController) === 'function' && _d) || Object, (typeof (_e = typeof NavController !== 'undefined' && NavController) === 'function' && _e) || Object, (typeof (_f = typeof CanchasData !== 'undefined' && CanchasData) === 'function' && _f) || Object, (typeof (_g = typeof UserData !== 'undefined' && UserData) === 'function' && _g) || Object])
+        __metadata$10('design:paramtypes', [AlertController, App, ModalController, NavController, CanchasData, UserData])
     ], CanchasPage);
     return CanchasPage;
-    var _a, _b, _c, _d, _e, _f, _g;
 }());
 
-/* ion-compiler */
-var __decorate$16 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$15 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$15 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$14 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var JugadorDetailPage = (function () {
@@ -67976,24 +67717,22 @@ var JugadorDetailPage = (function () {
     JugadorDetailPage.prototype.goToJugadorDetail = function (jugador) {
         this.navCtrl.push(CanchaDetailPage, jugador);
     };
-    JugadorDetailPage = __decorate$16([
+    JugadorDetailPage = __decorate$15([
         Component({
-            selector: 'page-jugador-detail', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <ion-title>{{jugador.name}}</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding class="speaker-detail">\n\n  <div text-center>\n    <img [src]="jugador.profilePic" [alt]="jugador.name"><br>\n\n    <button ion-button icon-only clear small color="twitter">\n      <ion-icon name="logo-twitter"></ion-icon>\n    </button>\n    <button ion-button icon-only clear small color="github">\n      <ion-icon name="logo-github"></ion-icon>\n    </button>\n    <button ion-button icon-only clear small color="instagram">\n      <ion-icon name="logo-instagram"></ion-icon>\n    </button>\n  </div>\n\n  <p>{{jugador.about}}</p>\n\n</ion-content>\n'
+            selector: 'page-jugador-detail',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/jugador-detail/jugador-detail.html"*/'<ion-header>\n  <ion-navbar>\n    <ion-title>{{jugador.name}}</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content padding class="speaker-detail">\n\n  <div text-center>\n    <img [src]="jugador.profilePic" [alt]="jugador.name"><br>\n\n    <button ion-button icon-only clear small color="twitter">\n      <ion-icon name="logo-twitter"></ion-icon>\n    </button>\n    <button ion-button icon-only clear small color="github">\n      <ion-icon name="logo-github"></ion-icon>\n    </button>\n    <button ion-button icon-only clear small color="instagram">\n      <ion-icon name="logo-instagram"></ion-icon>\n    </button>\n  </div>\n\n  <p>{{jugador.about}}</p>\n\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/jugador-detail/jugador-detail.html"*/
         }), 
-        __metadata$15('design:paramtypes', [(typeof (_a = typeof NavController !== 'undefined' && NavController) === 'function' && _a) || Object, (typeof (_b = typeof NavParams !== 'undefined' && NavParams) === 'function' && _b) || Object])
+        __metadata$14('design:paramtypes', [NavController, NavParams])
     ], JugadorDetailPage);
     return JugadorDetailPage;
-    var _a, _b;
 }());
 
-/* ion-compiler */
-var __decorate$15 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$14 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$14 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$13 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var JugadoresListPage = (function () {
@@ -68075,17 +67814,15 @@ var JugadoresListPage = (function () {
         });
         actionSheet.present();
     };
-    JugadoresListPage = __decorate$15([
+    JugadoresListPage = __decorate$14([
         Component({
-            selector: 'page-jugadores-list', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Busca jugadores</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="outer-content jugadores-list">\n  <ion-card *ngFor="let jugador of jugadores" class="jugadores">\n\n    <ion-card-header>\n      <ion-item>\n        <ion-avatar item-left>\n          <img [src]="jugador.profilePic">\n        </ion-avatar>\n        {{jugador.name}}\n        <button ion-button icon-only (click)="openContact(jugador)" clear item-right>\n          <ion-icon name="help-circle"></ion-icon>\n        </button>\n      </ion-item>\n    </ion-card-header>\n\n    <ion-card-content class="outer-content">\n      <ion-list>\n        <button ion-item (click)="goToJugadorDetail(jugador)">\n          <h3>{{jugador.location}}</h3>\n          <h3>{{jugador.about}}</h3>\n          <h3>{{jugador.phone}}</h3>\n        </button>\n      </ion-list>\n    </ion-card-content>\n\n    <ion-item>\n      <button ion-button icon-left (click)="goToJugadorTwitter(jugador)" clear item-left>\n        <ion-icon name="logo-twitter"></ion-icon>\n        Tweet\n      </button>\n      <button ion-button icon-left (click)="openJugadorShare(jugador)" clear item-right>\n        <ion-icon name="share"></ion-icon>\n        Compartir\n      </button>\n    </ion-item>\n\n  </ion-card>\n</ion-content>\n'
+            selector: 'page-jugadores-list',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/jugadores-list/jugadores-list.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Busca jugadores</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="outer-content jugadores-list">\n  <ion-card *ngFor="let jugador of jugadores" class="jugadores">\n\n    <ion-card-header>\n      <ion-item>\n        <ion-avatar item-left>\n          <img [src]="jugador.profilePic">\n        </ion-avatar>\n        {{jugador.name}}\n        <button ion-button icon-only (click)="openContact(jugador)" clear item-right>\n          <ion-icon name="help-circle"></ion-icon>\n        </button>\n      </ion-item>\n    </ion-card-header>\n\n    <ion-card-content class="outer-content">\n      <ion-list>\n        <button ion-item (click)="goToJugadorDetail(jugador)">\n          <h3>{{jugador.location}}</h3>\n          <h3>{{jugador.about}}</h3>\n          <h3>{{jugador.phone}}</h3>\n        </button>\n      </ion-list>\n    </ion-card-content>\n\n    <ion-item>\n      <button ion-button icon-left (click)="goToJugadorTwitter(jugador)" clear item-left>\n        <ion-icon name="logo-twitter"></ion-icon>\n        Tweet\n      </button>\n      <button ion-button icon-left (click)="openJugadorShare(jugador)" clear item-right>\n        <ion-icon name="share"></ion-icon>\n        Compartir\n      </button>\n    </ion-item>\n\n  </ion-card>\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/jugadores-list/jugadores-list.html"*/
         }), 
-        __metadata$14('design:paramtypes', [(typeof (_a = typeof ActionSheetController !== 'undefined' && ActionSheetController) === 'function' && _a) || Object, (typeof (_b = typeof NavController !== 'undefined' && NavController) === 'function' && _b) || Object, (typeof (_c = typeof CanchasData !== 'undefined' && CanchasData) === 'function' && _c) || Object, (typeof (_d = typeof Config !== 'undefined' && Config) === 'function' && _d) || Object])
+        __metadata$13('design:paramtypes', [ActionSheetController, NavController, CanchasData, Config])
     ], JugadoresListPage);
     return JugadoresListPage;
-    var _a, _b, _c, _d;
 }());
 
-/* ion-compiler */
 var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -68105,15 +67842,13 @@ var TabsPage = (function () {
         this.mySelectedIndex = navParams.data.tabIndex || 0;
     }
     TabsPage = __decorate$6([
-        Component({ template: /* ion-inline-template */ '<ion-tabs [selectedIndex]="mySelectedIndex">\n  <ion-tab [root]="tab1Root" tabTitle="Canchas" tabIcon="football"></ion-tab>\n  <ion-tab [root]="tab2Root" tabTitle="Jugadores" tabIcon="person-add"></ion-tab>\n  <ion-tab [root]="tab3Root" tabTitle="Mapa" tabIcon="map"></ion-tab>\n  <ion-tab [root]="tab4Root" tabTitle="+Info" tabIcon="information-circle"></ion-tab>\n</ion-tabs>\n\n\n'
+        Component({template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/tabs/tabs.html"*/'<ion-tabs [selectedIndex]="mySelectedIndex">\n  <ion-tab [root]="tab1Root" tabTitle="Canchas" tabIcon="football"></ion-tab>\n  <ion-tab [root]="tab2Root" tabTitle="Jugadores" tabIcon="person-add"></ion-tab>\n  <ion-tab [root]="tab3Root" tabTitle="Mapa" tabIcon="map"></ion-tab>\n  <ion-tab [root]="tab4Root" tabTitle="+Info" tabIcon="information-circle"></ion-tab>\n</ion-tabs>\n\n\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/tabs/tabs.html"*/
         }), 
-        __metadata$5('design:paramtypes', [(typeof (_a = typeof NavParams !== 'undefined' && NavParams) === 'function' && _a) || Object])
+        __metadata$5('design:paramtypes', [NavParams])
     ], TabsPage);
     return TabsPage;
-    var _a;
 }());
 
-/* ion-compiler */
 var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -68139,15 +67874,13 @@ var SignupPage = (function () {
     };
     SignupPage = __decorate$5([
         Component({
-            selector: 'page-signup', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Signup</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="login-page">\n\n  <ion-list>\n    <div class="logo">\n      <img src="assets/img/appicon.svg">\n    </div>\n\n    <form #signupForm="ngForm" novalidate>\n      <ion-item>\n        <ion-label floating color="primary">Username</ion-label>\n        <ion-input [(ngModel)]="signup.username" name="username" type="text" #username="ngModel" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="username.valid || submitted == false" color="danger" padding-left>\n        Username is required\n      </p>\n\n      <ion-item>\n        <ion-label floating color="primary">Password</ion-label>\n        <ion-input [(ngModel)]="signup.password" name="password" type="password" #password="ngModel" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="password.valid || submitted == false" color="danger" padding-left>\n        Password is required\n      </p>\n\n      <div padding>\n        <button ion-button (click)="onSignup(signupForm)" type="submit" block color="primary">Create</button>\n      </div>\n    </form>\n  </ion-list>\n\n</ion-content>\n'
+            selector: 'page-signup',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/signup/signup.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Signup</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="login-page">\n\n  <ion-list>\n    <div class="logo">\n      <img src="assets/img/appicon.svg">\n    </div>\n\n    <form #signupForm="ngForm" novalidate>\n      <ion-item>\n        <ion-label floating color="primary">Username</ion-label>\n        <ion-input [(ngModel)]="signup.username" name="username" type="text" #username="ngModel" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="username.valid || submitted == false" color="danger" padding-left>\n        Username is required\n      </p>\n\n      <ion-item>\n        <ion-label floating color="primary">Password</ion-label>\n        <ion-input [(ngModel)]="signup.password" name="password" type="password" #password="ngModel" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="password.valid || submitted == false" color="danger" padding-left>\n        Password is required\n      </p>\n\n      <div padding>\n        <button ion-button (click)="onSignup(signupForm)" type="submit" block color="primary">Create</button>\n      </div>\n    </form>\n  </ion-list>\n\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/signup/signup.html"*/
         }), 
-        __metadata$4('design:paramtypes', [(typeof (_a = typeof NavController !== 'undefined' && NavController) === 'function' && _a) || Object, (typeof (_b = typeof UserData !== 'undefined' && UserData) === 'function' && _b) || Object])
+        __metadata$4('design:paramtypes', [NavController, UserData])
     ], SignupPage);
     return SignupPage;
-    var _a, _b;
 }());
 
-/* ion-compiler */
 var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -68176,15 +67909,13 @@ var LoginPage = (function () {
     };
     LoginPage = __decorate$4([
         Component({
-            selector: 'page-login', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Login</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n  <ion-list>\n    <div class="logo">\n      <img src="assets/img/appicon.svg">\n    </div>\n\n    <form #loginForm="ngForm" novalidate>\n      <ion-item>\n        <ion-label floating color="primary">Username</ion-label>\n        <ion-input [(ngModel)]="login.username" name="username" type="text" #username="ngModel" spellcheck="false" autocapitalize="off" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="username.valid || submitted == false" color="danger" padding-left>\n        Username is required\n      </p>\n\n      <ion-item>\n        <ion-label floating color="primary">Password</ion-label>\n        <ion-input [(ngModel)]="login.password" name="password" type="password" #password="ngModel" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="password.valid || submitted == false" color="danger" padding-left>\n        Password is required\n      </p>\n\n      <ion-row responsive-sm>\n        <ion-col>\n          <button ion-button (click)="onLogin(loginForm)" type="submit" color="primary" block>Login</button>\n        </ion-col>\n        <ion-col>\n          <button ion-button (click)="onSignup()" color="light" block>Signup</button>\n        </ion-col>\n      </ion-row>\n    </form>\n  </ion-list>\n\n</ion-content>\n'
+            selector: 'page-login',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/login/login.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Login</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content>\n\n  <ion-list>\n    <div class="logo">\n      <img src="assets/img/appicon.svg">\n    </div>\n\n    <form #loginForm="ngForm" novalidate>\n      <ion-item>\n        <ion-label floating color="primary">Username</ion-label>\n        <ion-input [(ngModel)]="login.username" name="username" type="text" #username="ngModel" spellcheck="false" autocapitalize="off" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="username.valid || submitted == false" color="danger" padding-left>\n        Username is required\n      </p>\n\n      <ion-item>\n        <ion-label floating color="primary">Password</ion-label>\n        <ion-input [(ngModel)]="login.password" name="password" type="password" #password="ngModel" required>\n        </ion-input>\n      </ion-item>\n      <p [hidden]="password.valid || submitted == false" color="danger" padding-left>\n        Password is required\n      </p>\n\n      <ion-row responsive-sm>\n        <ion-col>\n          <button ion-button (click)="onLogin(loginForm)" type="submit" color="primary" block>Login</button>\n        </ion-col>\n        <ion-col>\n          <button ion-button (click)="onSignup()" color="light" block>Signup</button>\n        </ion-col>\n      </ion-row>\n    </form>\n  </ion-list>\n\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/login/login.html"*/
         }), 
-        __metadata$3('design:paramtypes', [(typeof (_a = typeof NavController !== 'undefined' && NavController) === 'function' && _a) || Object, (typeof (_b = typeof UserData !== 'undefined' && UserData) === 'function' && _b) || Object])
+        __metadata$3('design:paramtypes', [NavController, UserData])
     ], LoginPage);
     return LoginPage;
-    var _a, _b;
 }());
 
-/* ion-compiler */
 var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -68246,15 +67977,13 @@ var AccountPage = (function () {
     };
     AccountPage = __decorate$3([
         Component({
-            selector: 'page-account', template: /* ion-inline-template */ '<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Account</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="outer-content">\n  <div padding-top text-center *ngIf="username">\n    <img src="http://www.gravatar.com/avatar?d=mm&s=140">\n    <h2>{{username}}</h2>\n\n    <ion-list inset>\n      <button ion-item (click)="updatePicture()">Update Picture</button>\n      <button ion-item (click)="changeUsername()">Change Username</button>\n      <button ion-item (click)="changePassword()">Change Password</button>\n      <button ion-item (click)="logout()">Logout</button>\n    </ion-list>\n  </div>\n</ion-content>\n'
+            selector: 'page-account',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/account/account.html"*/'<ion-header>\n  <ion-navbar>\n    <button ion-button menuToggle>\n      <ion-icon name="menu"></ion-icon>\n    </button>\n    <ion-title>Account</ion-title>\n  </ion-navbar>\n</ion-header>\n\n<ion-content class="outer-content">\n  <div padding-top text-center *ngIf="username">\n    <img src="http://www.gravatar.com/avatar?d=mm&s=140">\n    <h2>{{username}}</h2>\n\n    <ion-list inset>\n      <button ion-item (click)="updatePicture()">Update Picture</button>\n      <button ion-item (click)="changeUsername()">Change Username</button>\n      <button ion-item (click)="changePassword()">Change Password</button>\n      <button ion-item (click)="logout()">Logout</button>\n    </ion-list>\n  </div>\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/account/account.html"*/
         }), 
-        __metadata$2('design:paramtypes', [(typeof (_a = typeof AlertController !== 'undefined' && AlertController) === 'function' && _a) || Object, (typeof (_b = typeof NavController !== 'undefined' && NavController) === 'function' && _b) || Object, (typeof (_c = typeof UserData !== 'undefined' && UserData) === 'function' && _c) || Object])
+        __metadata$2('design:paramtypes', [AlertController, NavController, UserData])
     ], AccountPage);
     return AccountPage;
-    var _a, _b, _c;
 }());
 
-/* ion-compiler */
 var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -68337,25 +68066,23 @@ var ConferenceApp = (function () {
     };
     __decorate$2([
         ViewChild(Nav), 
-        __metadata$1('design:type', (typeof (_a = typeof Nav !== 'undefined' && Nav) === 'function' && _a) || Object)
+        __metadata$1('design:type', Nav)
     ], ConferenceApp.prototype, "nav", void 0);
     ConferenceApp = __decorate$2([
-        Component({ template: /* ion-inline-template */ '\n<!-- logged out menu -->\n<ion-menu id="loggedOutMenu" [content]="content">\n\n  <ion-header>\n    <ion-toolbar>\n      <ion-title>Menu</ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content class="outer-content">\n\n    <ion-list>\n      <ion-list-header>\n        Navega\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of appPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n\n    <ion-list>\n      <ion-list-header>\n        Cuenta\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of loggedOutPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n  </ion-content>\n\n</ion-menu>\n\n<!-- logged in menu -->\n<ion-menu id="loggedInMenu" [content]="content">\n\n  <ion-header>\n    <ion-toolbar>\n      <ion-title>Menu</ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content class="outer-content">\n\n    <ion-list>\n      <ion-list-header>\n        Navega\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of appPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n\n    <ion-list>\n      <ion-list-header>\n        Cuenta\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of loggedInPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n\n  </ion-content>\n\n</ion-menu>\n\n\n<!-- main navigation -->\n<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>\n'
+        Component({template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/app/app.template.html"*/'\n<!-- logged out menu -->\n<ion-menu id="loggedOutMenu" [content]="content">\n\n  <ion-header>\n    <ion-toolbar>\n      <ion-title>Menu</ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content class="outer-content">\n\n    <ion-list>\n      <ion-list-header>\n        Navega\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of appPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n\n    <ion-list>\n      <ion-list-header>\n        Cuenta\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of loggedOutPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n  </ion-content>\n\n</ion-menu>\n\n<!-- logged in menu -->\n<ion-menu id="loggedInMenu" [content]="content">\n\n  <ion-header>\n    <ion-toolbar>\n      <ion-title>Menu</ion-title>\n    </ion-toolbar>\n  </ion-header>\n\n  <ion-content class="outer-content">\n\n    <ion-list>\n      <ion-list-header>\n        Navega\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of appPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n\n    <ion-list>\n      <ion-list-header>\n        Cuenta\n      </ion-list-header>\n      <button ion-item menuClose *ngFor="let p of loggedInPages" (click)="openPage(p)">\n        <ion-icon item-left [name]="p.icon"></ion-icon>\n        {{p.title}}\n      </button>\n    </ion-list>\n\n  </ion-content>\n\n</ion-menu>\n\n\n<!-- main navigation -->\n<ion-nav [root]="rootPage" #content swipeBackEnabled="false"></ion-nav>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/app/app.template.html"*/
         }), 
-        __metadata$1('design:paramtypes', [(typeof (_b = typeof Events !== 'undefined' && Events) === 'function' && _b) || Object, (typeof (_c = typeof UserData !== 'undefined' && UserData) === 'function' && _c) || Object, (typeof (_d = typeof MenuController !== 'undefined' && MenuController) === 'function' && _d) || Object, (typeof (_e = typeof Platform !== 'undefined' && Platform) === 'function' && _e) || Object, (typeof (_f = typeof CanchasData !== 'undefined' && CanchasData) === 'function' && _f) || Object])
+        __metadata$1('design:paramtypes', [Events, UserData, MenuController, Platform, CanchasData])
     ], ConferenceApp);
     return ConferenceApp;
-    var _a, _b, _c, _d, _e, _f;
 }());
 
-/* ion-compiler */
-var __decorate$17 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate$16 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$16 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata$15 = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var TutorialPage = (function () {
@@ -68385,30 +68112,28 @@ var TutorialPage = (function () {
         // enable the root left menu when leaving the tutorial page
         this.menu.enable(true);
     };
-    TutorialPage = __decorate$17([
+    TutorialPage = __decorate$16([
         Component({
-            selector: 'page-tutorial', template: /* ion-inline-template */ '<ion-header no-shadow>\n  <ion-navbar>\n    <ion-buttons end *ngIf="showSkip">\n      <button ion-button (click)="startApp()" color="primary">Skip</button>\n    </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content no-bounce>\n  <ion-slides [options]="{pager: true}" (ionWillChange)="onSlideChangeStart($event)">\n    <ion-slide *ngFor="let slide of slides">\n      <img [src]="slide.image" class="slide-image"/>\n      <h2 class="slide-title" [innerHTML]="slide.title"></h2>\n      <p [innerHTML]="slide.description"></p>\n      <button ion-button icon-right large clear (click)="startApp()">\n        Continue\n        <ion-icon name="arrow-forward"></ion-icon>\n      </button>\n    </ion-slide>\n  </ion-slides>\n</ion-content>\n'
+            selector: 'page-tutorial',template:/*ion-inline-start:"/home/developer/apps/canchasApp/src/pages/tutorial/tutorial.html"*/'<ion-header no-shadow>\n  <ion-navbar>\n    <ion-buttons end *ngIf="showSkip">\n      <button ion-button (click)="startApp()" color="primary">Skip</button>\n    </ion-buttons>\n  </ion-navbar>\n</ion-header>\n\n<ion-content no-bounce>\n  <ion-slides [options]="{pager: true}" (ionWillChange)="onSlideChangeStart($event)">\n    <ion-slide *ngFor="let slide of slides">\n      <img [src]="slide.image" class="slide-image"/>\n      <h2 class="slide-title" [innerHTML]="slide.title"></h2>\n      <p [innerHTML]="slide.description"></p>\n      <button ion-button icon-right large clear (click)="startApp()">\n        Continue\n        <ion-icon name="arrow-forward"></ion-icon>\n      </button>\n    </ion-slide>\n  </ion-slides>\n</ion-content>\n'/*ion-inline-end:"/home/developer/apps/canchasApp/src/pages/tutorial/tutorial.html"*/
         }), 
-        __metadata$16('design:paramtypes', [(typeof (_a = typeof NavController !== 'undefined' && NavController) === 'function' && _a) || Object, (typeof (_b = typeof MenuController !== 'undefined' && MenuController) === 'function' && _b) || Object])
+        __metadata$15('design:paramtypes', [NavController, MenuController])
     ], TutorialPage);
     return TutorialPage;
-    var _a, _b;
 }());
 
-/* ion-compiler */
-var __decorate$$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$$1 = (undefined && undefined.__metadata) || function (k, v) {
+var __metadata = (undefined && undefined.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var AppModule = (function () {
     function AppModule() {
     }
-    AppModule = __decorate$$1([
+    AppModule = __decorate([
         NgModule({
             declarations: [
                 ConferenceApp,
@@ -68448,12 +68173,11 @@ var AppModule = (function () {
             ],
             providers: [CanchasData, UserData, Storage]
         }), 
-        __metadata$$1('design:paramtypes', [])
+        __metadata('design:paramtypes', [])
     ], AppModule);
     return AppModule;
 }());
 
-/* ion-compiler */
 platformBrowserDynamic().bootstrapModule(AppModule);
 
 }());

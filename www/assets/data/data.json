@@ -153,25 +153,73 @@
   ],
 
 
-  "map": [
+   "map": [
     {
-      "name": "Resistencia chaco",
-      "lat": -27.4606439,
-      "lng": -59.0653856,
+      "name": "Hay Equipo! Futbol 5",
+      "lat": -27.445724, 
+      "lng": -58.969939,
       "center": true
-
+    },
+    {
+      "name": "Resistencia",
+      "lat": -27.4605809, 
+      "lng": -59.0303648,
+      "center": true
+    },
+    {
+      "name": "Off Side Futbol 5",
+      "lat": -27.446644, 
+      "lng": -58.992759
+    },
+    {
+      "name": "El Quincho Futbol 5",
+      "lat": -27.458163,
+      "lng": -58.996157 
+    },
+    {
+      "name": "El Gigante 5 Futbol",
+      "lat": -27.464461, 
+      "lng": -58.971999
+    },
+    {
+      "name": "El triángulo fútbol 5",
+      "lat": -27.433989, 
+      "lng": -59.006743
+    },
+    {
+      "name": "Matchpoint Fútbol 5",
+      "lat": -27.470240,
+      "lng": -58.965648   
+    },
+    {
+      "name": "El Mundial Fútbol 5",
+      "lat": -27.432828, 
+      "lng": -59.008352  
+    },
+    {
+      "name": "Futbol 5 Tercer Tiempo",
+      "lat": -27.435958, 
+      "lng": -59.003457
     },
     {
       "name": "Premium",
-      "lat": -27.4551208,
-      "lng": -59.0045477,
-      "center": true
+      "lat": -27.436813, 
+      "lng": -59.017599  
     },
     {
-      "name": "El quincho",
-      "lat": -27.4551208,
-      "lng": -59.0045477,
-      "center": true
+      "name": "Cancha divina",
+      "lat": -27.432669,  
+      "lng": -58.965644
+    },
+    {
+      "name": "Cancha Seven",
+      "lat": -27.415891,   
+      "lng": -58.965810
+    },
+    {
+      "name": "La Ultima Canchita",
+      "lat": -27.427989, 
+      "lng": -58.960539
     }
   ]
 

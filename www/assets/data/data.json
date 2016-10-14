@@ -1,43 +1,124 @@
   {
   "canchas": [
     {
-      "name": "Bancarios",
-      "location": "Ruta 16 km 203",
-      "description": "Dos cancha de 11 dos canchas de 8 de cesped natural",
-      "phoneNumber": "+5493624201233",
-      "canchaNumber": "7",
-      "price": ["200"],
-      "lat": 43.07336,
-      "lng": -89.38335
+      "name": "Hay Equipo! Futbol 5",
+      "location": "Zorrilla León 550",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624665589",
+      "canchaNumber": "5",
+      "price": "200",
+      "lat": -27.445724, 
+      "lng": -58.969939
     },
     {
-      "name": "Sarmiento cancha",
-      "location": "Ruta 16 km 203",
-      "description": "Dos cancha de 11 dos canchas de 8 de cesped natural",
-      "phoneNumber": "+5493624201233",
+      "name": "Off Side Futbol 5",
+      "location": "Julio Argentino Roca 630",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624876701",
       "canchaNumber": "5",
-      "price": ["150"],
-      "lat": 43.07336,
-      "lng": -89.38335
+      "price": "300",
+      "lat": -27.446644, 
+      "lng": -58.992759
+    },
+    {
+      "name": "El Quincho Futbol 5",
+      "location": "Sta María de Oro 1031",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624717330",
+      "canchaNumber": "5",
+      "price": ["200"],
+      "lat": -27.458163,
+      "lng": -58.996157    
+    },
+    {
+      "name": "El Gigante 5 Futbol",
+      "location": "Av. 9 de Julio 1654",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624406661",
+      "canchaNumber": "5",
+      "price": ["300"],
+      "lat": -27.464461, 
+      "lng": -58.971999
+    },
+    {
+      "name": "El triángulo fútbol 5",
+      "location": "Av. 25 de Mayo 2250",
+      "description": "Dos cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624766323",
+      "canchaNumber": "5",
+      "price": ["200"],
+      "lat": -27.433989, 
+      "lng": -59.006743
+    },
+    {
+      "name": "Matchpoint Fútbol 5",
+      "location": "Av. 9 de Julio 2350",
+      "description": "Tres canchas de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624544798",
+      "canchaNumber": "5",
+      "price": ["200"],
+      "lat": -27.470240,
+      "lng": -58.965648   
+    },
+    {
+      "name": "El Mundial Fútbol 5",
+      "location": "Av 25 de Mayo 2345",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624519579",
+      "canchaNumber": "5",
+      "price": ["200"],
+      "lat": -27.432828, 
+      "lng": -59.008352  
+    },
+    {
+      "name": "Futbol 5 Tercer Tiempo",
+      "location": "Av. 25 de Mayo 1890",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624221345",
+      "canchaNumber": "5",
+      "price": ["200"],
+      "lat": -27.435958, 
+      "lng": -59.003457
     },
     {
       "name": "Premium",
-      "location": "Ruta 16 km 203",
-      "description": "Dos cancha de 11 dos canchas de 8 de cesped natural",
-      "phoneNumber": "+5493624201233",
-      "canchaNumber": "5 ",
+      "location": "Avenida Alvear 2675",
+      "description": "Una cancha de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624408080",
+      "canchaNumber": "5",
       "price": ["200"],
-      "lat": 43.07336,
-      "lng": -89.38335
+      "lat": -27.436813, 
+      "lng": -59.017599  
     },
     {
-      "name": "Fulbitos",
-      "location": "Ruta 16 km 203",
-      "description": "Dos cancha de 11 dos canchas de 8 de cesped natural",
-      "phoneNumber": "+5493624201233",
-      "price": ["300"],
-      "lat": 43.07336,
-      "lng": -89.38335
+      "name": "Cancha divina",
+      "location": "Avenida Sarmiento 2610",
+      "description": "Dos canchas de futbol 5 de cesped sintetico",
+      "phoneNumber": "3624337913",
+      "canchaNumber": "5",
+      "price": ["200"],
+      "lat": -27.432669,  
+      "lng": -58.965644
+    },
+    {
+      "name": "Cancha Seven",
+      "location": "Ruta nacional 16 km..",
+      "description": "Una cancha de futbol 7 de cesped sintetico. Ubicada yendo para el hiper, 100 mts antes, al lado de SIFER GAS S.A.",
+      "phoneNumber": "3624160843",
+      "canchaNumber": "7",
+      "price": ["200"],
+      "lat": -27.415891,   
+      "lng": -58.965810
+    },
+    {
+      "name": "La Ultima Canchita",
+      "location": "Avenida Sarmiento 3000",
+      "description": "Tres cancha de futbol 5 de cesped sintetico. Servicios adicionales: Bar / Restaurante, Torneos, Escuelita de Fútbol, Cumpleaños, Parrilla, Estacionamiento",
+      "phoneNumber": "03624706649 ",
+      "canchaNumber": "5",
+      "price": ["200"], 
+      "lat": -27.427989, 
+      "lng": -58.960539
     }
   ],
 

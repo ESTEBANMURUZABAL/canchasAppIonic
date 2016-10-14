@@ -55,9 +55,8 @@ export class CanchasPage {
     // Close any open sliding items when the canchas updates
     this.canchasList && this.canchasList.closeSlidingItems();
 
-    this.confData.getCanchas(this.dayIndex, this.queryText, this.excludeTracks, this.segment).then(data => {
-   
-      this.shownCanchas = data.shownCanchas;
+    this.confData.getCanchas().then(data => {
+  
       this.chanchas = data.canchas;
     });
   }
@@ -76,8 +75,6 @@ export class CanchasPage {
   }
 
   goToCanchaDetail(cancha) {
-    // go to the session detail page
-    // and pass in the session data
     this.navCtrl.push(CanchaDetailPage, cancha);
   }
 

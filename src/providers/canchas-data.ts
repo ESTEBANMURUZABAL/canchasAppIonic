@@ -31,12 +31,11 @@ export class CanchasData {
     });
   }
 
-  getCanchas(dayIndex, queryText = '', excludeTracks = [], segment = 'all') {
+  getCanchas() {
     return this.load().then(data => {
       
-     
 
-      return data;
+      return data.canchas;
     });
   }
 

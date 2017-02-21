@@ -1,5 +1,4 @@
 { 
-   "data": [
     {
       "id": 1,
       "name": "Hay Equipo! Futbol 5",
@@ -141,6 +140,5 @@
       "price": ["200"], 
       "latitude": -27.427989, 
       "longitude": -58.960539
-    }
-  ]  
+    } 
 }  
